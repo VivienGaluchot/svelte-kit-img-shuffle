@@ -1,0 +1,16 @@
+{
+	"editor.formatOnSave": true,
+	"terminal.integrated.profiles.linux": {
+		"bash": {
+			"path": "bash",
+			"icon": "terminal-bash"
+		}
+	},
+	"terminal.integrated.defaultProfile.linux": "bash",
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"prettier.configPath": ".prettierrc",
+	"[svelte]": {
+		"editor.defaultFormatter": "svelte.svelte-vscode"
+	},
+	"svelte.enable-ts-plugin": true
+}

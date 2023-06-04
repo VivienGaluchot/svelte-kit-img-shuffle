@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  node:
+    stdin_open: true
+    tty: true
+    build:
+      context: ../../
+      dockerfile: ./env/picture_slicer_multi-dev/Dockerfile
+    volumes:
+      - ../../:/home/dev/picture_slicer_multi
+      - ~/.ssh:/home/dev/.ssh:ro
+      - ~/.gitconfig:/home/dev/.gitconfig:ro
