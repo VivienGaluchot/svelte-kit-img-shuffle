@@ -4,14 +4,54 @@
 		y: number;
 	}
 
-	interface Tile {
+	class Tile {
 		initial: Pos;
+		current: Pos;
 		drag: {
+			tmpCurrent: null | Pos;
 			isDragFrom: boolean;
 			isDragTo: boolean;
 			left: number;
 			top: number;
 		};
+
+		constructor(x: number, y: number) {
+			this.initial = { x, y };
+			this.current = { x, y };
+			this.drag = { tmpCurrent: null, isDragFrom: false, isDragTo: false, left: 0, top: 0 };
+		}
+
+		swapTo(to: Tile) {
+			const tmp = this.current;
+			this.current = to.current;
+			to.current = tmp;
+		}
+
+		setDragFrom() {
+			this.drag.isDragFrom = true;
+		}
+
+		unsetDragFrom() {
+			this.drag.left = 0;
+			this.drag.top = 0;
+			this.drag.isDragFrom = false;
+		}
+
+		setDragTo(from: Tile) {
+			this.drag.isDragTo = true;
+			if (this.drag.tmpCurrent == null) {
+				this.drag.tmpCurrent = this.current;
+			}
+			this.current = from.current;
+		}
+
+		unsetDragTo() {
+			this.drag.isDragTo = false;
+			if (this.drag.tmpCurrent != null) {
+				this.current = this.drag.tmpCurrent;
+				this.drag.tmpCurrent = null;
+			}
+		}
 	}
 
 	class Matrix {
@@ -21,44 +61,35 @@
 			for (let y = 0; y < col; y++) {
 				this.matrix[y] = [];
 				for (let x = 0; x < row; x++) {
-					this.matrix[y][x] = {
-						initial: { x, y },
-						drag: { isDragFrom: false, isDragTo: false, left: 0, top: 0 }
-					};
+					this.matrix[y][x] = new Tile(x, y);
 				}
 			}
 		}
 
-		rows(): Tile[][] {
-			return this.matrix;
+		*tiles(): Generator<Tile> {
+			for (const row of this.matrix) {
+				for (const tile of row) {
+					yield tile;
+				}
+			}
 		}
 
-		tile(p: Pos) {
+		tile(p: Pos): Tile | null {
 			return this.matrix[p.y][p.x];
-		}
-
-		trigger() {
-			this.matrix = this.matrix;
-		}
-
-		swap(a: Pos, b: Pos) {
-			[this.matrix[a.y][a.x], this.matrix[b.y][b.x]] = [
-				this.matrix[b.y][b.x],
-				this.matrix[a.y][a.x]
-			];
 		}
 	}
 
 	export let tilesMatrix = new Matrix(4, 4);
 
-	let dragFrom: Pos | null = null;
-	let dragTo: Pos | null = null;
+	let dragStart: Pos | null = null;
+	let dragFrom: Tile | null = null;
+	let dragTo: Tile | null = null;
 
-	function posFromEl(el: HTMLElement): Pos | null {
+	function tileFromEl(el: HTMLElement): Tile | null {
 		if (el.dataset.posX && el.dataset.posY) {
 			const x = Number(el.dataset.posX);
 			const y = Number(el.dataset.posY);
-			return { x, y };
+			return tilesMatrix.tile({ x, y });
 		} else {
 			return null;
 		}
@@ -67,27 +98,31 @@
 	function onMouseDown(event: MouseEvent) {
 		const el = event.target;
 		if (el instanceof HTMLElement) {
-			dragFrom = posFromEl(el);
+			dragFrom = tileFromEl(el);
 			if (dragFrom) {
-				tilesMatrix.tile(dragFrom).drag.isDragFrom = true;
+				dragFrom.setDragFrom();
 				tilesMatrix = tilesMatrix;
 			}
 		}
+		dragStart = { x: event.clientX, y: event.clientY };
 	}
 
 	function onMouseMove(event: MouseEvent) {
-		if (dragFrom) {
-			tilesMatrix.tile(dragFrom).drag.left += event.movementX;
-			tilesMatrix.tile(dragFrom).drag.top += event.movementY;
+		if (dragFrom && dragStart) {
+			dragFrom.drag.left = event.clientX - dragStart.x;
+			dragFrom.drag.top = event.clientY - dragStart.y;
 			for (const el of document.elementsFromPoint(event.clientX, event.clientY)) {
 				if (el instanceof HTMLElement) {
-					const pos = posFromEl(el);
-					if (pos && pos != dragFrom) {
-						if (dragTo != null && dragTo != pos) {
-							tilesMatrix.tile(dragTo).drag.isDragTo = false;
+					const tile = tileFromEl(el);
+					if (tile != null && tile != dragFrom) {
+						let isBack = tile == dragTo;
+						dragTo?.unsetDragTo();
+						if (!isBack) {
+							dragTo = tile;
+							dragTo.setDragTo(dragFrom);
+						} else {
+							dragTo = null;
 						}
-						dragTo = pos;
-						tilesMatrix.tile(dragTo).drag.isDragTo = true;
 					}
 				}
 			}
@@ -96,16 +131,11 @@
 	}
 
 	function onMouseUp(event: MouseEvent) {
-		if (dragFrom) {
-			tilesMatrix.tile(dragFrom).drag.left = 0;
-			tilesMatrix.tile(dragFrom).drag.top = 0;
-			tilesMatrix.tile(dragFrom).drag.isDragFrom = false;
-		}
-		if (dragTo) {
-			tilesMatrix.tile(dragTo).drag.isDragTo = false;
-		}
+		dragStart = null;
+		dragFrom?.unsetDragFrom();
+		dragTo?.unsetDragTo();
 		if (dragFrom && dragTo) {
-			tilesMatrix.swap(dragFrom, dragTo);
+			dragFrom.swapTo(dragTo);
 		}
 		tilesMatrix = tilesMatrix;
 		dragFrom = null;
@@ -117,22 +147,26 @@
 	<title>Play - Picture slicer multi</title>
 </svelte:head>
 
-<div>
-	{#each tilesMatrix.rows() as tileRow, row}
-		<div class="row">
-			{#each tileRow as tile, col}
-				<div
-					class="tile"
-					class:drag-from={tile.drag.isDragFrom}
-					class:drag-to={tile.drag.isDragTo}
-					data-pos-x={col}
-					data-pos-y={row}
-					on:mousedown={onMouseDown}
-					style="left: {tile.drag.left}px; top: {tile.drag.top}px;"
-				>
-					{tile.initial.x}, {tile.initial.y}
-				</div>
-			{/each}
+<!--
+	TODO
+	- merge tiles elements, cut with clip-path
+	  (developer.mozilla.org/fr/docs/Web/CSS/clip-path)
+	- snap drag
+	- drag element
+ -->
+<div class="grid">
+	{#each [...tilesMatrix.tiles()] as tile}
+		<div
+			class="tile"
+			class:drag-from={tile.drag.isDragFrom}
+			class:drag-to={tile.drag.isDragTo}
+			data-pos-x={tile.initial.x}
+			data-pos-y={tile.initial.y}
+			on:mousedown={onMouseDown}
+			style="left: {tile.drag.left}px; top: {tile.drag.top}px; grid-row: {tile.current.y +
+				1}; grid-column: {tile.current.x + 1};"
+		>
+			{tile.initial.x}, {tile.initial.y}
 		</div>
 	{/each}
 </div>
@@ -140,22 +174,23 @@
 <svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove} />
 
 <style>
-	.row {
-		display: flex;
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
 	}
 
 	.tile {
 		user-select: none;
 		width: 8rem;
 		height: 8rem;
-		background-color: rgb(76, 92, 92);
+		background-color: hsl(180, 15%, 70%);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		box-sizing: border-box;
 		justify-content: center;
-		color: rgba(0, 0, 0, 0.2);
-		border: 1px solid rgba(0, 0, 0, 0.2);
+		color: hsl(180, 15%, 50%);
+		border: 1px solid hsl(180, 15%, 50%);
 		position: relative;
 	}
 
@@ -165,10 +200,10 @@
 	}
 
 	.tile.drag-to {
-		background-color: rgb(33, 39, 39);
+		background-color: hsl(180, 15%, 60%);
 	}
 
 	.tile:hover {
-		background-color: rgb(65, 126, 126);
+		background-color: hsl(180, 15%, 60%);
 	}
 </style>
