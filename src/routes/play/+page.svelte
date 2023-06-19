@@ -1,7 +1,15 @@
 <script lang="ts">
+	import demoImage from '$lib/assets/photo-1687057217908-54f8e6d30e3c.avif';
+
 	interface Pos {
 		x: number;
 		y: number;
+	}
+
+	interface PuzzleImage {
+		url: string;
+		w: number;
+		h: number;
 	}
 
 	class Tile {
@@ -15,10 +23,18 @@
 			top: number;
 		};
 
-		constructor(x: number, y: number) {
+		cols: number;
+		rows: number;
+
+		image: PuzzleImage;
+
+		constructor(x: number, y: number, rows: number, cols: number, image: PuzzleImage) {
 			this.initial = { x, y };
 			this.current = { x, y };
 			this.drag = { tmpCurrent: null, isDragFrom: false, isDragTo: false, left: 0, top: 0 };
+			this.rows = rows;
+			this.cols = cols;
+			this.image = image;
 		}
 
 		swapTo(to: Tile) {
@@ -52,34 +68,64 @@
 				this.drag.tmpCurrent = null;
 			}
 		}
+
+		style() {
+			return (
+				`left: ${this.drag.left}px; top: ${this.drag.top}px; ` +
+				`grid-row: ${this.current.y + 1}; grid-column: ${this.current.x + 1}; ` +
+				`background-image: url(${this.image.url}); ` +
+				`background-position: ${this.bgX()}% ${this.bgY()}%; ` +
+				`background-size: ${400}%;`
+			);
+		}
+
+		bgX() {
+			return (100 / (this.rows - 1)) * this.initial.x;
+		}
+
+		bgY() {
+			return (100 / (this.cols - 1)) * this.initial.y;
+		}
 	}
 
 	class Matrix {
-		matrix: Tile[][] = [];
+		rows: number;
+		cols: number;
+		image: PuzzleImage;
+		matrix: Tile[] = [];
 
-		constructor(row: number, col: number) {
-			for (let y = 0; y < col; y++) {
-				this.matrix[y] = [];
-				for (let x = 0; x < row; x++) {
-					this.matrix[y][x] = new Tile(x, y);
+		constructor(rows: number, cols: number, image: PuzzleImage) {
+			this.rows = rows;
+			this.cols = cols;
+			this.image = image;
+			this.matrix = [];
+			for (let y = 0; y < this.cols; y++) {
+				for (let x = 0; x < this.rows; x++) {
+					this.matrix.push(new Tile(x, y, this.rows, this.cols, image));
 				}
 			}
 		}
 
 		*tiles(): Generator<Tile> {
-			for (const row of this.matrix) {
-				for (const tile of row) {
-					yield tile;
-				}
+			for (const tile of this.matrix) {
+				yield tile;
 			}
 		}
 
 		tile(p: Pos): Tile | null {
-			return this.matrix[p.y][p.x];
+			return this.matrix[p.y * this.rows + p.x];
+		}
+
+		style() {
+			return `aspect-ratio: ${this.image.w} / ${this.image.h};`;
+		}
+
+		shuffle() {
+			// TODO
 		}
 	}
 
-	export let tilesMatrix = new Matrix(4, 4);
+	export let tilesMatrix = new Matrix(4, 5, { url: demoImage, w: 930, h: 1162 });
 
 	let dragStart: Pos | null = null;
 	let dragFrom: Tile | null = null;
@@ -151,10 +197,11 @@
 	TODO
 	- merge tiles elements, cut with clip-path
 	  (developer.mozilla.org/fr/docs/Web/CSS/clip-path)
-	- snap drag
-	- drag element
+	- animated drag swap
+	- drag multiple tiles at once
+	- shuffle
  -->
-<div class="grid">
+<div class="grid" style={tilesMatrix.style()}>
 	{#each [...tilesMatrix.tiles()] as tile}
 		<div
 			class="tile"
@@ -163,12 +210,13 @@
 			data-pos-x={tile.initial.x}
 			data-pos-y={tile.initial.y}
 			on:mousedown={onMouseDown}
-			style="left: {tile.drag.left}px; top: {tile.drag.top}px; grid-row: {tile.current.y +
-				1}; grid-column: {tile.current.x + 1};"
-		>
-			{tile.initial.x}, {tile.initial.y}
-		</div>
+			style={tile.style()}
+		/>
 	{/each}
+</div>
+
+<div class="toolbar">
+	<button>Shuffle</button>
 </div>
 
 <svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove} />
@@ -177,33 +225,38 @@
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(4, 1fr);
+		width: 50rem;
 	}
 
 	.tile {
 		user-select: none;
-		width: 8rem;
-		height: 8rem;
-		background-color: hsl(180, 15%, 70%);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		box-sizing: border-box;
 		justify-content: center;
-		color: hsl(180, 15%, 50%);
-		border: 1px solid hsl(180, 15%, 50%);
 		position: relative;
+		transition: border-radius 200ms;
 	}
 
 	.tile.drag-from {
-		scale: 1.1;
 		z-index: 1;
+		border-radius: 0.5rem;
 	}
 
 	.tile.drag-to {
-		background-color: hsl(180, 15%, 60%);
+		outline: 0.2rem dashed white;
+		outline-offset: -0.4rem;
 	}
 
 	.tile:hover {
-		background-color: hsl(180, 15%, 60%);
+		outline: 0.2rem dashed white;
+		outline-offset: -0.4rem;
+	}
+
+	.toolbar {
+		margin-top: 2rem;
+		display: flex;
+		justify-content: center;
 	}
 </style>
