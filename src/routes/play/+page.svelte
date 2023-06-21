@@ -1,6 +1,16 @@
 <script lang="ts">
 	import demoImage from '$lib/assets/photo-1687057217908-54f8e6d30e3c.avif';
 
+	function shuffle<T>(array: T[]) {
+		let currentIndex = array.length;
+		let randomIndex;
+		while (currentIndex != 0) {
+			randomIndex = Math.floor(Math.random() * currentIndex);
+			currentIndex--;
+			[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+		}
+	}
+
 	interface Pos {
 		x: number;
 		y: number;
@@ -23,8 +33,8 @@
 			top: number;
 		};
 
-		cols: number;
 		rows: number;
+		cols: number;
 
 		image: PuzzleImage;
 
@@ -75,16 +85,16 @@
 				`grid-row: ${this.current.y + 1}; grid-column: ${this.current.x + 1}; ` +
 				`background-image: url(${this.image.url}); ` +
 				`background-position: ${this.bgX()}% ${this.bgY()}%; ` +
-				`background-size: ${400}%;`
+				`background-size: ${100 * Math.min(this.cols, this.rows)}%;`
 			);
 		}
 
 		bgX() {
-			return (100 / (this.rows - 1)) * this.initial.x;
+			return (100 / (this.cols - 1)) * this.initial.x;
 		}
 
 		bgY() {
-			return (100 / (this.cols - 1)) * this.initial.y;
+			return (100 / (this.rows - 1)) * this.initial.y;
 		}
 	}
 
@@ -99,8 +109,8 @@
 			this.cols = cols;
 			this.image = image;
 			this.matrix = [];
-			for (let y = 0; y < this.cols; y++) {
-				for (let x = 0; x < this.rows; x++) {
+			for (let y = 0; y < this.rows; y++) {
+				for (let x = 0; x < this.cols; x++) {
 					this.matrix.push(new Tile(x, y, this.rows, this.cols, image));
 				}
 			}
@@ -113,19 +123,30 @@
 		}
 
 		tile(p: Pos): Tile | null {
-			return this.matrix[p.y * this.rows + p.x];
+			return this.matrix[p.y * this.cols + p.x];
 		}
 
 		style() {
-			return `aspect-ratio: ${this.image.w} / ${this.image.h};`;
+			return (
+				`aspect-ratio: ${this.image.w} / ${this.image.h}; ` +
+				`grid-template-columns: repeat(${this.cols}, 1fr);`
+			);
 		}
 
 		shuffle() {
-			// TODO
+			const positions = [
+				...this.matrix.map((tile) => {
+					return { ...tile.current };
+				})
+			];
+			shuffle(positions);
+			for (const index in this.matrix) {
+				this.matrix[index].current = positions[index];
+			}
 		}
 	}
 
-	export let tilesMatrix = new Matrix(4, 5, { url: demoImage, w: 930, h: 1162 });
+	export let tilesMatrix = new Matrix(5, 4, { url: demoImage, w: 930, h: 1162 });
 
 	let dragStart: Pos | null = null;
 	let dragFrom: Tile | null = null;
@@ -199,7 +220,7 @@
 	  (developer.mozilla.org/fr/docs/Web/CSS/clip-path)
 	- animated drag swap
 	- drag multiple tiles at once
-	- shuffle
+	- compute rows and cols based on img size and number of pieces
  -->
 <div class="grid" style={tilesMatrix.style()}>
 	{#each [...tilesMatrix.tiles()] as tile}
@@ -216,7 +237,12 @@
 </div>
 
 <div class="toolbar">
-	<button>Shuffle</button>
+	<button
+		on:click={() => {
+			tilesMatrix.shuffle();
+			tilesMatrix = tilesMatrix;
+		}}>Shuffle</button
+	>
 </div>
 
 <svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove} />
@@ -224,7 +250,6 @@
 <style>
 	.grid {
 		display: grid;
-		grid-template-columns: repeat(4, 1fr);
 		width: 50rem;
 	}
 
