@@ -25,6 +25,7 @@
 		height: 100%;
 		display: flex;
 		flex-direction: column;
+		overflow: auto;
 	}
 
 	.layout {
@@ -42,5 +43,6 @@
 		padding: 1rem;
 		border-radius: 0.5rem;
 		justify-self: center;
+		max-width: 100%;
 	}
 </style>

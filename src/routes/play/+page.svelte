@@ -1,5 +1,7 @@
 <script lang="ts">
 	import demoImage from '$lib/assets/photo-1687057217908-54f8e6d30e3c.avif';
+	import { vec2dAdd, type Vec2d, vec2dEqual, vec2dSubstract } from '$lib/math';
+	import { onMount } from 'svelte';
 
 	function shuffle<T>(array: T[]) {
 		let currentIndex = array.length;
@@ -11,9 +13,21 @@
 		}
 	}
 
-	interface Pos {
-		x: number;
-		y: number;
+	export let slotGrid: HTMLElement | null = null;
+
+	export const tileSizes: Vec2d = { x: 0, y: 0 };
+
+	function getSlot(pos: Vec2d, cols: number): HTMLElement | null {
+		if (slotGrid) {
+			const id = pos.y * cols + pos.x;
+			if (id >= 0 && id < slotGrid.children.length) {
+				const element = slotGrid.children[id];
+				if (element instanceof HTMLElement) {
+					return element;
+				}
+			}
+		}
+		return null;
 	}
 
 	interface PuzzleImage {
@@ -23,10 +37,10 @@
 	}
 
 	class Tile {
-		initial: Pos;
-		current: Pos;
+		initial: Vec2d;
+		current: Vec2d;
 		drag: {
-			tmpCurrent: null | Pos;
+			tmpCurrent: null | Vec2d;
 			isDragFrom: boolean;
 			isDragTo: boolean;
 			left: number;
@@ -80,13 +94,19 @@
 		}
 
 		style() {
-			return (
-				`left: ${this.drag.left}px; top: ${this.drag.top}px; ` +
-				`grid-row: ${this.current.y + 1}; grid-column: ${this.current.x + 1}; ` +
-				`background-image: url(${this.image.url}); ` +
-				`background-position: ${this.bgX()}% ${this.bgY()}%; ` +
-				`background-size: ${100 * Math.min(this.cols, this.rows)}%;`
-			);
+			const slot = getSlot(this.current, this.cols);
+			console.log(slot, this.current, this.cols);
+			if (slot) {
+				return (
+					`left: ${slot.offsetLeft + this.drag.left}px; top: ${
+						slot.offsetTop + this.drag.top
+					}px; ` +
+					`background-image: url(${this.image.url}); ` +
+					`background-position: ${this.bgX()}% ${this.bgY()}%; ` +
+					`background-size: ${100 * Math.min(this.cols, this.rows)}%;` +
+					`width: ${tileSizes.x}px; height: ${tileSizes.x}px;`
+				);
+			}
 		}
 
 		bgX() {
@@ -122,8 +142,36 @@
 			}
 		}
 
-		tile(p: Pos): Tile | null {
-			return this.matrix[p.y * this.cols + p.x];
+		tileGroup(origin: Tile): Set<Tile> {
+			const group = new Set<Tile>();
+			const self = this;
+			const dirs = [
+				{ x: 0, y: -1 },
+				{ x: 1, y: 0 },
+				{ x: 0, y: 1 },
+				{ x: -1, y: 0 }
+			];
+			function reqFill(target: Tile) {
+				if (!group.has(target)) {
+					group.add(target);
+					for (const dir of dirs) {
+						const tile = self.tileByInitial(vec2dAdd(target.initial, dir));
+						if (tile && vec2dEqual(vec2dSubstract(tile.current, target.current), dir)) {
+							reqFill(tile);
+						}
+					}
+				}
+			}
+			reqFill(origin);
+			return group;
+		}
+
+		tileByInitial(p: Vec2d): Tile | null {
+			if (p.x >= 0 && p.x < this.cols && p.y >= 0 && p.y < this.rows) {
+				return this.matrix[p.y * this.cols + p.x];
+			} else {
+				return null;
+			}
 		}
 
 		style() {
@@ -148,15 +196,15 @@
 
 	export let tilesMatrix = new Matrix(5, 4, { url: demoImage, w: 930, h: 1162 });
 
-	let dragStart: Pos | null = null;
-	let dragFrom: Tile | null = null;
-	let dragTo: Tile | null = null;
+	let dragStart: Vec2d | null = null;
+	let dragFrom: Tile[] | null = null;
+	let dragTarget: Tile | null = null;
 
 	function tileFromEl(el: HTMLElement): Tile | null {
 		if (el.dataset.posX && el.dataset.posY) {
 			const x = Number(el.dataset.posX);
 			const y = Number(el.dataset.posY);
-			return tilesMatrix.tile({ x, y });
+			return tilesMatrix.tileByInitial({ x, y });
 		} else {
 			return null;
 		}
@@ -165,9 +213,11 @@
 	function onMouseDown(event: MouseEvent) {
 		const el = event.target;
 		if (el instanceof HTMLElement) {
-			dragFrom = tileFromEl(el);
-			if (dragFrom) {
-				dragFrom.setDragFrom();
+			const tile = tileFromEl(el);
+			if (tile) {
+				dragFrom = [...tilesMatrix.tileGroup(tile)];
+				dragFrom.map((tile) => tile.setDragFrom());
+				console.log(dragFrom);
 				tilesMatrix = tilesMatrix;
 			}
 		}
@@ -176,19 +226,23 @@
 
 	function onMouseMove(event: MouseEvent) {
 		if (dragFrom && dragStart) {
-			dragFrom.drag.left = event.clientX - dragStart.x;
-			dragFrom.drag.top = event.clientY - dragStart.y;
+			const left = event.clientX - dragStart.x;
+			const top = event.clientY - dragStart.y;
+			dragFrom.map((tile) => {
+				tile.drag.left = left;
+				tile.drag.top = top;
+			});
 			for (const el of document.elementsFromPoint(event.clientX, event.clientY)) {
 				if (el instanceof HTMLElement) {
 					const tile = tileFromEl(el);
-					if (tile != null && tile != dragFrom) {
-						let isBack = tile == dragTo;
-						dragTo?.unsetDragTo();
+					if (tile != null && !tile.drag.isDragFrom) {
+						let isBack = tile == dragTarget;
+						dragTarget?.unsetDragTo();
 						if (!isBack) {
-							dragTo = tile;
-							dragTo.setDragTo(dragFrom);
+							dragTarget = tile;
+							dragTarget.setDragTo(dragFrom[0]);
 						} else {
-							dragTo = null;
+							dragTarget = null;
 						}
 					}
 				}
@@ -199,15 +253,34 @@
 
 	function onMouseUp(event: MouseEvent) {
 		dragStart = null;
-		dragFrom?.unsetDragFrom();
-		dragTo?.unsetDragTo();
-		if (dragFrom && dragTo) {
-			dragFrom.swapTo(dragTo);
+		dragFrom?.map((item) => item.unsetDragFrom());
+		dragTarget?.unsetDragTo();
+		if (dragFrom && dragTarget) {
+			dragFrom[0].swapTo(dragTarget);
 		}
 		tilesMatrix = tilesMatrix;
 		dragFrom = null;
-		dragTo = null;
+		dragTarget = null;
 	}
+
+	function updateLayout() {
+		if (slotGrid && slotGrid.firstElementChild) {
+			const element = slotGrid.firstElementChild;
+			if (element instanceof HTMLElement) {
+				tileSizes.x = element.offsetWidth;
+				tileSizes.y = element.offsetHeight;
+				tilesMatrix = tilesMatrix;
+			}
+		}
+	}
+
+	onMount(() => {
+		window.addEventListener('resize', updateLayout);
+		updateLayout();
+		return () => {
+			window.removeEventListener('resize', updateLayout);
+		};
+	});
 </script>
 
 <svelte:head>
@@ -222,7 +295,12 @@
 	- drag multiple tiles at once
 	- compute rows and cols based on img size and number of pieces
  -->
-<div class="grid" style={tilesMatrix.style()}>
+<div class="stack">
+	<div class="grid" style={tilesMatrix.style()} bind:this={slotGrid}>
+		{#each [...tilesMatrix.tiles()] as tile}
+			<div class="slot" />
+		{/each}
+	</div>
 	{#each [...tilesMatrix.tiles()] as tile}
 		<div
 			class="tile"
@@ -248,33 +326,49 @@
 <svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove} />
 
 <style>
+	.stack {
+		position: relative;
+		overflow: hidden;
+	}
+
 	.grid {
 		display: grid;
 		width: 50rem;
+		max-width: 100%;
+	}
+
+	.slot {
+		user-select: none;
+		border-radius: 2rem;
+		outline: 0.2rem solid rgba(0, 0, 0, 0.1);
+		outline-offset: -1rem;
 	}
 
 	.tile {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 1rem;
+		height: 1rem;
 		user-select: none;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
 		box-sizing: border-box;
-		justify-content: center;
-		position: relative;
 		transition: border-radius 200ms;
 	}
 
 	.tile.drag-from {
 		z-index: 1;
-		border-radius: 0.5rem;
+		outline: 0.2rem dashed white;
+		outline-offset: -0.4rem;
+		opacity: 0.8;
 	}
 
 	.tile.drag-to {
-		outline: 0.2rem dashed white;
+		outline: 0.2rem dashed rgb(194, 207, 9);
 		outline-offset: -0.4rem;
+		opacity: 0.8;
 	}
 
-	.tile:hover {
+	.tile:not(.drag-from):hover {
 		outline: 0.2rem dashed white;
 		outline-offset: -0.4rem;
 	}
