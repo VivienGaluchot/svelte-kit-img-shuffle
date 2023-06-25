@@ -1,21 +1,23 @@
 <script lang="ts">
+	import { shuffle } from '$lib/random';
 	import demoImage from '$lib/assets/photo-1687057217908-54f8e6d30e3c.avif';
 	import { vec2dAdd, type Vec2d, vec2dEqual, vec2dSubstract } from '$lib/math';
 	import { onMount } from 'svelte';
 
-	function shuffle<T>(array: T[]) {
-		let currentIndex = array.length;
-		let randomIndex;
-		while (currentIndex != 0) {
-			randomIndex = Math.floor(Math.random() * currentIndex);
-			currentIndex--;
-			[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-		}
-	}
-
 	export let slotGrid: HTMLElement | null = null;
 
 	export const tileSizes: Vec2d = { x: 0, y: 0 };
+
+	function updateTileSizes() {
+		if (slotGrid && slotGrid.firstElementChild) {
+			const element = slotGrid.firstElementChild;
+			if (element instanceof HTMLElement) {
+				tileSizes.x = element.offsetWidth;
+				tileSizes.y = element.offsetHeight;
+				tilesMatrix = tilesMatrix;
+			}
+		}
+	}
 
 	function getSlot(pos: Vec2d, cols: number): HTMLElement | null {
 		if (slotGrid) {
@@ -29,6 +31,8 @@
 		}
 		return null;
 	}
+
+	// Game
 
 	interface PuzzleImage {
 		url: string;
@@ -95,7 +99,6 @@
 
 		style() {
 			const slot = getSlot(this.current, this.cols);
-			console.log(slot, this.current, this.cols);
 			if (slot) {
 				return (
 					`left: ${slot.offsetLeft + this.drag.left}px; top: ${
@@ -116,6 +119,12 @@
 		bgY() {
 			return (100 / (this.rows - 1)) * this.initial.y;
 		}
+	}
+
+	interface DragFromData {
+		startClient: Vec2d;
+		startPos: Vec2d;
+		tiles: Tile[];
 	}
 
 	class Matrix {
@@ -174,6 +183,15 @@
 			}
 		}
 
+		tileByCurrent(p: Vec2d): Tile | null {
+			for (const tile of this.matrix) {
+				if (vec2dEqual(tile.current, p)) {
+					return tile;
+				}
+			}
+			return null;
+		}
+
 		style() {
 			return (
 				`aspect-ratio: ${this.image.w} / ${this.image.h}; ` +
@@ -192,93 +210,113 @@
 				this.matrix[index].current = positions[index];
 			}
 		}
+
+		// drag
+
+		dragFrom: DragFromData | null = null;
+		dragTarget: Tile | null = null;
+
+		dragStart(pos: Vec2d, clientPos: Vec2d) {
+			const tile = this.tileByCurrent(pos);
+			if (tile) {
+				const tiles = [...this.tileGroup(tile)];
+				this.dragFrom = {
+					startClient: clientPos,
+					startPos: { ...tile.current },
+					tiles
+				};
+				tiles.map((tile) => tile.setDragFrom());
+			}
+		}
+
+		dragUpdate(pos: Vec2d | null, clientPos: Vec2d) {
+			if (this.dragFrom) {
+				const left = clientPos.x - this.dragFrom.startClient.x;
+				const top = clientPos.y - this.dragFrom.startClient.y;
+				this.dragFrom.tiles.map((tile) => {
+					tile.drag.left = left;
+					tile.drag.top = top;
+				});
+				if (pos) {
+					const tile = this.tileByCurrent(pos);
+					if (tile) {
+						let isBack = tile == this.dragTarget;
+						this.dragTarget?.unsetDragTo();
+						if (!isBack) {
+							this.dragTarget = tile;
+							this.dragTarget.setDragTo(this.dragFrom.tiles[0]);
+						} else {
+							this.dragTarget = null;
+						}
+					}
+				}
+			}
+		}
+
+		dragStop(pos: Vec2d | null, clientPos: Vec2d) {
+			this.dragFrom?.tiles.map((item) => item.unsetDragFrom());
+			this.dragTarget?.unsetDragTo();
+			if (this.dragFrom && this.dragTarget) {
+				this.dragFrom.tiles[0].swapTo(this.dragTarget);
+			}
+			this.dragFrom = null;
+			this.dragTarget = null;
+		}
 	}
 
 	export let tilesMatrix = new Matrix(5, 4, { url: demoImage, w: 930, h: 1162 });
 
-	let dragStart: Vec2d | null = null;
-	let dragFrom: Tile[] | null = null;
-	let dragTarget: Tile | null = null;
+	// Drag
 
-	function tileFromEl(el: HTMLElement): Tile | null {
+	function slotPosFromEl(el: HTMLElement): Vec2d | null {
 		if (el.dataset.posX && el.dataset.posY) {
 			const x = Number(el.dataset.posX);
 			const y = Number(el.dataset.posY);
-			return tilesMatrix.tileByInitial({ x, y });
+			return { x, y };
 		} else {
 			return null;
 		}
 	}
 
-	function onMouseDown(event: MouseEvent) {
-		const el = event.target;
-		if (el instanceof HTMLElement) {
-			const tile = tileFromEl(el);
-			if (tile) {
-				dragFrom = [...tilesMatrix.tileGroup(tile)];
-				dragFrom.map((tile) => tile.setDragFrom());
-				console.log(dragFrom);
-				tilesMatrix = tilesMatrix;
-			}
-		}
-		dragStart = { x: event.clientX, y: event.clientY };
-	}
-
-	function onMouseMove(event: MouseEvent) {
-		if (dragFrom && dragStart) {
-			const left = event.clientX - dragStart.x;
-			const top = event.clientY - dragStart.y;
-			dragFrom.map((tile) => {
-				tile.drag.left = left;
-				tile.drag.top = top;
-			});
-			for (const el of document.elementsFromPoint(event.clientX, event.clientY)) {
-				if (el instanceof HTMLElement) {
-					const tile = tileFromEl(el);
-					if (tile != null && !tile.drag.isDragFrom) {
-						let isBack = tile == dragTarget;
-						dragTarget?.unsetDragTo();
-						if (!isBack) {
-							dragTarget = tile;
-							dragTarget.setDragTo(dragFrom[0]);
-						} else {
-							dragTarget = null;
-						}
-					}
+	function slotPosFromPoint(p: Vec2d): Vec2d | null {
+		for (const el of document.elementsFromPoint(p.x, p.y)) {
+			if (el instanceof HTMLElement) {
+				const pos = slotPosFromEl(el);
+				if (pos) {
+					return pos;
 				}
 			}
+		}
+		return null;
+	}
+
+	function onMouseDown(event: MouseEvent) {
+		const clientPos = { x: event.clientX, y: event.clientY };
+		const pos = slotPosFromPoint(clientPos);
+		console.log(pos);
+		if (pos) {
+			tilesMatrix.dragStart(pos, clientPos);
 			tilesMatrix = tilesMatrix;
 		}
 	}
 
-	function onMouseUp(event: MouseEvent) {
-		dragStart = null;
-		dragFrom?.map((item) => item.unsetDragFrom());
-		dragTarget?.unsetDragTo();
-		if (dragFrom && dragTarget) {
-			dragFrom[0].swapTo(dragTarget);
-		}
+	function onMouseMove(event: MouseEvent) {
+		const clientPos = { x: event.clientX, y: event.clientY };
+		tilesMatrix.dragUpdate(slotPosFromPoint(clientPos), clientPos);
 		tilesMatrix = tilesMatrix;
-		dragFrom = null;
-		dragTarget = null;
 	}
 
-	function updateLayout() {
-		if (slotGrid && slotGrid.firstElementChild) {
-			const element = slotGrid.firstElementChild;
-			if (element instanceof HTMLElement) {
-				tileSizes.x = element.offsetWidth;
-				tileSizes.y = element.offsetHeight;
-				tilesMatrix = tilesMatrix;
-			}
-		}
+	function onMouseUp(event: MouseEvent) {
+		const clientPos = { x: event.clientX, y: event.clientY };
+		tilesMatrix.dragStop(slotPosFromPoint(clientPos), clientPos);
+		tilesMatrix = tilesMatrix;
 	}
 
 	onMount(() => {
-		window.addEventListener('resize', updateLayout);
-		updateLayout();
+		window.addEventListener('resize', updateTileSizes);
+		updateTileSizes();
 		return () => {
-			window.removeEventListener('resize', updateLayout);
+			window.removeEventListener('resize', updateTileSizes);
 		};
 	});
 </script>
@@ -294,11 +332,12 @@
 	- animated drag swap
 	- drag multiple tiles at once
 	- compute rows and cols based on img size and number of pieces
+	- multi player / localised shuffle
  -->
 <div class="stack">
 	<div class="grid" style={tilesMatrix.style()} bind:this={slotGrid}>
 		{#each [...tilesMatrix.tiles()] as tile}
-			<div class="slot" />
+			<div class="slot" data-pos-x={tile.initial.x} data-pos-y={tile.initial.y} />
 		{/each}
 	</div>
 	{#each [...tilesMatrix.tiles()] as tile}
@@ -306,8 +345,6 @@
 			class="tile"
 			class:drag-from={tile.drag.isDragFrom}
 			class:drag-to={tile.drag.isDragTo}
-			data-pos-x={tile.initial.x}
-			data-pos-y={tile.initial.y}
 			on:mousedown={onMouseDown}
 			style={tile.style()}
 		/>
@@ -339,7 +376,6 @@
 
 	.slot {
 		user-select: none;
-		border-radius: 2rem;
 		outline: 0.2rem solid rgba(0, 0, 0, 0.1);
 		outline-offset: -1rem;
 	}
@@ -353,6 +389,10 @@
 		user-select: none;
 		box-sizing: border-box;
 		transition: border-radius 200ms;
+	}
+
+	.tile:not(.tile.drag-from) {
+		transition: top 200ms, left 200ms;
 	}
 
 	.tile.drag-from {
