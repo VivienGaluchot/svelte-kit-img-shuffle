@@ -34,6 +34,12 @@
 
 	// Game
 
+	const DIR_2D_TOP = { x: 0, y: -1 };
+	const DIR_2D_BOTTOM = { x: 0, y: 1 };
+	const DIR_2D_LEFT = { x: -1, y: 0 };
+	const DIR_2D_RIGHT = { x: 1, y: 0 };
+	const DIRS_2D = [DIR_2D_TOP, DIR_2D_BOTTOM, DIR_2D_LEFT, DIR_2D_RIGHT];
+
 	interface PuzzleImage {
 		url: string;
 		w: number;
@@ -41,6 +47,8 @@
 	}
 
 	class Tile {
+		matrix: Matrix;
+
 		initial: Vec2d;
 		current: Vec2d;
 		drag: {
@@ -51,18 +59,43 @@
 			top: number;
 		};
 
-		rows: number;
-		cols: number;
-
-		image: PuzzleImage;
-
-		constructor(x: number, y: number, rows: number, cols: number, image: PuzzleImage) {
+		constructor(x: number, y: number, matrix: Matrix) {
+			this.matrix = matrix;
 			this.initial = { x, y };
 			this.current = { x, y };
 			this.drag = { tmpCurrent: null, isDragFrom: false, isDragTo: false, left: 0, top: 0 };
-			this.rows = rows;
-			this.cols = cols;
-			this.image = image;
+		}
+
+		get image() {
+			return this.matrix.image;
+		}
+
+		get cols() {
+			return this.matrix.cols;
+		}
+
+		get rows() {
+			return this.matrix.rows;
+		}
+
+		getNext(dir: Vec2d): Tile | null {
+			return this.matrix.tileByCurrent(vec2dAdd(this.current, dir));
+		}
+
+		isOkWith(tile: Tile): boolean {
+			return vec2dEqual(
+				vec2dSubstract(tile.current, this.current),
+				vec2dSubstract(tile.initial, this.initial)
+			);
+		}
+
+		isOkWithNext(dir: Vec2d): boolean {
+			const next = this.getNext(dir);
+			if (next) {
+				return next.isOkWith(this);
+			} else {
+				return true;
+			}
 		}
 
 		swapTo(to: Tile) {
@@ -101,13 +134,12 @@
 			const slot = getSlot(this.current, this.cols);
 			if (slot) {
 				return (
-					`left: ${slot.offsetLeft + this.drag.left}px; top: ${
-						slot.offsetTop + this.drag.top
-					}px; ` +
+					`left: ${slot.offsetLeft + this.drag.left}px; ` +
+					`top: ${slot.offsetTop + this.drag.top}px; ` +
+					`width: ${tileSizes.x}px; height: ${tileSizes.x}px;` +
 					`background-image: url(${this.image.url}); ` +
 					`background-position: ${this.bgX()}% ${this.bgY()}%; ` +
-					`background-size: ${100 * Math.min(this.cols, this.rows)}%;` +
-					`width: ${tileSizes.x}px; height: ${tileSizes.x}px;`
+					`background-size: ${100 * Math.min(this.cols, this.rows)}%;`
 				);
 			}
 		}
@@ -140,7 +172,7 @@
 			this.matrix = [];
 			for (let y = 0; y < this.rows; y++) {
 				for (let x = 0; x < this.cols; x++) {
-					this.matrix.push(new Tile(x, y, this.rows, this.cols, image));
+					this.matrix.push(new Tile(x, y, this));
 				}
 			}
 		}
@@ -153,19 +185,12 @@
 
 		tileGroup(origin: Tile): Set<Tile> {
 			const group = new Set<Tile>();
-			const self = this;
-			const dirs = [
-				{ x: 0, y: -1 },
-				{ x: 1, y: 0 },
-				{ x: 0, y: 1 },
-				{ x: -1, y: 0 }
-			];
 			function reqFill(target: Tile) {
 				if (!group.has(target)) {
 					group.add(target);
-					for (const dir of dirs) {
-						const tile = self.tileByInitial(vec2dAdd(target.initial, dir));
-						if (tile && vec2dEqual(vec2dSubstract(tile.current, target.current), dir)) {
+					for (const dir of DIRS_2D) {
+						const tile = target.getNext(dir);
+						if (tile && target.isOkWith(tile)) {
 							reqFill(tile);
 						}
 					}
@@ -293,7 +318,6 @@
 	function onMouseDown(event: MouseEvent) {
 		const clientPos = { x: event.clientX, y: event.clientY };
 		const pos = slotPosFromPoint(clientPos);
-		console.log(pos);
 		if (pos) {
 			tilesMatrix.dragStart(pos, clientPos);
 			tilesMatrix = tilesMatrix;
@@ -345,6 +369,10 @@
 			class="tile"
 			class:drag-from={tile.drag.isDragFrom}
 			class:drag-to={tile.drag.isDragTo}
+			class:top-ok={tile.drag.isDragFrom || tile.isOkWithNext(DIR_2D_TOP)}
+			class:bottom-ok={tile.drag.isDragFrom || tile.isOkWithNext(DIR_2D_BOTTOM)}
+			class:left-ok={tile.drag.isDragFrom || tile.isOkWithNext(DIR_2D_LEFT)}
+			class:right-ok={tile.drag.isDragFrom || tile.isOkWithNext(DIR_2D_RIGHT)}
 			on:mousedown={onMouseDown}
 			style={tile.style()}
 		/>
@@ -389,6 +417,27 @@
 		user-select: none;
 		box-sizing: border-box;
 		transition: border-radius 200ms;
+	}
+
+	.tile::after {
+		display: block;
+		content: '';
+		height: 100%;
+		box-sizing: border-box;
+		border: 0 solid #15222e;
+		transition: border 200ms;
+	}
+	.tile:not(.top-ok)::after {
+		border-top-width: 0.2rem;
+	}
+	.tile:not(.bottom-ok)::after {
+		border-bottom-width: 0.2rem;
+	}
+	.tile:not(.left-ok)::after {
+		border-left-width: 0.2rem;
+	}
+	.tile:not(.right-ok)::after {
+		border-right-width: 0.2rem;
 	}
 
 	.tile:not(.tile.drag-from) {
