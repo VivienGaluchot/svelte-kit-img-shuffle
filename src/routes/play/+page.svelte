@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { shuffle } from '$lib/random';
 	import demoImage from '$lib/assets/photo-1687057217908-54f8e6d30e3c.avif';
-	import { vec2dAdd, type Vec2d, vec2dEqual, vec2dSubstract } from '$lib/math';
+	import * as lm from '$lib/math';
 	import { onMount } from 'svelte';
 
 	export let slotGrid: HTMLElement | null = null;
 
-	export const tileSizes: Vec2d = { x: 0, y: 0 };
+	export const tileSizes: lm.Vec2d = { x: 0, y: 0 };
 
 	function updateTileSizes() {
 		if (slotGrid && slotGrid.firstElementChild) {
@@ -19,7 +19,7 @@
 		}
 	}
 
-	function getSlot(pos: Vec2d, cols: number): HTMLElement | null {
+	function getSlot(pos: lm.Vec2d, cols: number): HTMLElement | null {
 		if (slotGrid) {
 			const id = pos.y * cols + pos.x;
 			if (id >= 0 && id < slotGrid.children.length) {
@@ -50,18 +50,23 @@
 		matrix: Matrix;
 
 		// initial position in cell index
-		initial: Vec2d;
+		initial: lm.Vec2d;
 		// current position in cell index
-		current: Vec2d;
+		current: lm.Vec2d;
 
-		drag: {
-			originCurrent: null | Vec2d;
-			isDragFrom: boolean;
-			// TODO use ?
-			isDragTo: boolean;
-			// TODO use ?
-			// position in pixel
-			offset: Vec2d;
+		private drag: {
+			from: null | {
+				// in cell index
+				originCurrent: lm.Vec2d;
+				// in pixel
+				originClient: lm.Vec2d;
+				// position in pixel
+				pullOffset: lm.Vec2d;
+			};
+			to: null | {
+				// in cell index
+				originCurrent: lm.Vec2d;
+			};
 		};
 
 		constructor(x: number, y: number, matrix: Matrix) {
@@ -69,37 +74,47 @@
 			this.initial = { x, y };
 			this.current = { x, y };
 			this.drag = {
-				originCurrent: null,
-				isDragFrom: false,
-				isDragTo: false,
-				offset: { x: 0, y: 0 }
+				from: null,
+				to: null
 			};
 		}
 
-		get image() {
+		get image(): PuzzleImage {
 			return this.matrix.image;
 		}
 
-		get cols() {
+		get cols(): number {
 			return this.matrix.cols;
 		}
 
-		get rows() {
+		get rows(): number {
 			return this.matrix.rows;
 		}
 
-		getNext(dir: Vec2d): Tile | null {
-			return this.matrix.tileByCurrent(vec2dAdd(this.current, dir));
+		isDragFrom(): boolean {
+			return this.drag.from != null;
+		}
+
+		isDragTo(): boolean {
+			return this.drag.to != null;
+		}
+
+		originOrCurrent(): lm.Vec2d {
+			return this.drag.from?.originCurrent ?? this.drag.to?.originCurrent ?? this.current;
+		}
+
+		getNext(dir: lm.Vec2d): Tile | null {
+			return this.matrix.tileByCurrent(lm.vec2dAdd(this.current, dir));
 		}
 
 		isOkWith(tile: Tile): boolean {
-			return vec2dEqual(
-				vec2dSubstract(tile.current, this.current),
-				vec2dSubstract(tile.initial, this.initial)
+			return lm.vec2dEqual(
+				lm.vec2dSubstract(tile.current, this.current),
+				lm.vec2dSubstract(tile.initial, this.initial)
 			);
 		}
 
-		isOkWithNext(dir: Vec2d): boolean {
+		isOkWithNext(dir: lm.Vec2d): boolean {
 			const next = this.getNext(dir);
 			if (next) {
 				return next.isOkWith(this);
@@ -108,46 +123,64 @@
 			}
 		}
 
-		setDragFrom() {
-			this.drag.isDragFrom = true;
-			if (this.drag.originCurrent != null) {
-				throw new Error('setDragFrom: originCurrent already set');
+		setDragFrom(clientPos: lm.Vec2d) {
+			if (this.drag.from != null) {
+				throw new Error('setDragFrom: from already set');
 			}
-			this.drag.originCurrent = { ...this.current };
+			if (this.drag.to != null) {
+				throw new Error('setDragFrom: to already set');
+			}
+			this.drag.from = {
+				originCurrent: this.current,
+				originClient: clientPos,
+				pullOffset: { x: 0, y: 0 }
+			};
+		}
+
+		updateDragFrom(clientPos: lm.Vec2d) {
+			if (this.drag.from == null) {
+				throw new Error('updateDragFrom: from unset');
+			}
+			const diff = lm.vec2dSubstract(clientPos, this.drag.from.originClient);
+			const mod = lm.vec2dZip(diff, tileSizes, (a, b) => {
+				return a - Math.round(a / b) * b;
+			});
+			this.drag.from.pullOffset = mod;
 		}
 
 		unsetDragFrom() {
-			if (this.drag.originCurrent == null) {
-				throw new Error('unsetDragFrom: originCurrent unset');
+			if (this.drag.from == null) {
+				throw new Error('unsetDragFrom: from unset');
 			}
-			this.drag.isDragFrom = false;
-			this.drag.offset = { x: 0, y: 0 };
-			this.drag.originCurrent = null;
+			this.drag.from = null;
 		}
 
 		setDragTo() {
-			if (this.drag.originCurrent != null) {
-				throw new Error('setDragTo: originCurrent already set');
+			if (this.drag.from != null) {
+				throw new Error('setDragTo: from already set');
 			}
-			this.drag.isDragTo = true;
-			this.drag.originCurrent = { ...this.current };
+			if (this.drag.to != null) {
+				throw new Error('setDragTo: to already set');
+			}
+			this.drag.to = {
+				originCurrent: this.current
+			};
 		}
 
 		unsetDragTo() {
-			if (this.drag.originCurrent == null) {
-				throw new Error('unsetDragTo: originCurrent unset');
+			if (this.drag.to == null) {
+				throw new Error('unsetDragTo: to unset');
 			}
-			this.drag.isDragTo = false;
-			this.current = this.drag.originCurrent;
-			this.drag.originCurrent = null;
+			this.current = this.drag.to.originCurrent;
+			this.drag.to = null;
 		}
 
 		style() {
 			const slot = getSlot(this.current, this.cols);
 			if (slot) {
 				return (
-					`left: ${slot.offsetLeft + this.drag.offset.x}px; ` +
-					`top: ${slot.offsetTop + this.drag.offset.y}px; ` +
+					`left: ${slot.offsetLeft + (this.drag.from?.pullOffset.x ?? 0)}px; ` +
+					`top: ${slot.offsetTop + (this.drag.from?.pullOffset?.y ?? 0)}px; ` +
 					`width: ${tileSizes.x}px; height: ${tileSizes.x}px;` +
 					`background-image: url(${this.image.url}); ` +
 					`background-position: ${this.bgX()}% ${this.bgY()}%; ` +
@@ -166,15 +199,16 @@
 	}
 
 	interface DragFromData {
-		startClient: Vec2d;
-		startPos: Vec2d;
+		startClient: lm.Vec2d;
+		startPos: lm.Vec2d;
+		currentPos: lm.Vec2d;
 		tiles: Tile[];
 		dragActions: DragAction[];
 	}
 
 	interface DragAction {
 		tile: Tile;
-		pos: Vec2d;
+		pos: lm.Vec2d;
 		isDragTo: boolean;
 	}
 
@@ -219,7 +253,7 @@
 			return group;
 		}
 
-		tileByInitial(p: Vec2d): Tile | null {
+		tileByInitial(p: lm.Vec2d): Tile | null {
 			if (this.isInRange(p)) {
 				return this.matrix[p.y * this.cols + p.x];
 			} else {
@@ -227,23 +261,22 @@
 			}
 		}
 
-		isInRange(p: Vec2d) {
+		isInRange(p: lm.Vec2d) {
 			return p.x >= 0 && p.x < this.cols && p.y >= 0 && p.y < this.rows;
 		}
 
-		tileByCurrent(p: Vec2d): Tile | null {
+		tileByCurrent(p: lm.Vec2d): Tile | null {
 			for (const tile of this.matrix) {
-				if (vec2dEqual(tile.current, p)) {
+				if (lm.vec2dEqual(tile.current, p)) {
 					return tile;
 				}
 			}
 			return null;
 		}
 
-		tileByOriginCurrent(p: Vec2d): Tile | null {
+		tileByOriginCurrent(p: lm.Vec2d): Tile | null {
 			for (const tile of this.matrix) {
-				const current = tile.drag.originCurrent ?? tile.current;
-				if (vec2dEqual(current, p)) {
+				if (lm.vec2dEqual(tile.originOrCurrent(), p)) {
 					return tile;
 				}
 			}
@@ -269,12 +302,12 @@
 			}
 		}
 
-		solveDrag(tiles: Tile[], offset: Vec2d): DragAction[] {
+		solveDrag(tiles: Tile[], offset: lm.Vec2d): DragAction[] {
 			const out: DragAction[] = [];
 			if (offset.x != 0 || offset.y != 0) {
 				const tilesPos = [];
 				for (const tile of tiles) {
-					const pos = vec2dAdd(tile.current, offset);
+					const pos = lm.vec2dAdd(tile.current, offset);
 					if (!this.isInRange(pos)) {
 						return [];
 					}
@@ -284,18 +317,23 @@
 					out.push({ tile, pos: pos, isDragTo: false });
 					const dragTo = this.tileByOriginCurrent(pos);
 					if (dragTo && !tiles.includes(dragTo)) {
-						let dragToPos: Vec2d;
+						let dragToPos: lm.Vec2d;
 						let isDone: boolean;
 						let dragFromTile = tile;
+						let iterations = 0;
 						do {
-							dragToPos = dragFromTile.drag.originCurrent ?? dragFromTile.current;
+							dragToPos = dragFromTile.originOrCurrent();
 							isDone = true;
 							for (const { pos, tile } of tilesPos) {
-								if (vec2dEqual(pos, dragToPos)) {
+								if (lm.vec2dEqual(pos, dragToPos)) {
 									isDone = false;
 									dragFromTile = tile;
 									break;
 								}
+							}
+							iterations++;
+							if (iterations > 1000) {
+								throw new Error('infinite loop');
 							}
 						} while (!isDone);
 						out.push({
@@ -314,25 +352,31 @@
 		dragFrom: DragFromData | null = null;
 		dragTarget: Tile | null = null;
 
-		setDragFrom(pos: Vec2d, clientPos: Vec2d) {
+		setDragFrom(pos: lm.Vec2d, clientPos: lm.Vec2d) {
 			const tile = this.tileByOriginCurrent(pos);
 			if (tile) {
 				const tiles = [...this.tileGroup(tile)];
 				this.dragFrom = {
 					startClient: clientPos,
 					startPos: pos,
+					currentPos: pos,
 					tiles,
 					dragActions: []
 				};
-				tiles.map((tile) => tile.setDragFrom());
+				tiles.map((tile) => tile.setDragFrom(clientPos));
 			}
 		}
 
-		dragUpdate(pos: Vec2d | null, clientPos: Vec2d) {
-			if (this.dragFrom && pos) {
-				const offset = vec2dSubstract(pos, this.dragFrom.startPos);
-				this.dragFrom.startPos = pos;
-				const actions = this.solveDrag(this.dragFrom.tiles, offset);
+		dragUpdate(clientPos: lm.Vec2d) {
+			if (this.dragFrom) {
+				// relative to drag start
+				const startClientOffset = lm.vec2dSubstract(clientPos, this.dragFrom.startClient);
+				const startOffset = lm.vec2dRound(lm.vec2dDivide(startClientOffset, tileSizes));
+				// relative to last update
+				const currentPos = lm.vec2dAdd(this.dragFrom.startPos, startOffset);
+				const currentOffset = lm.vec2dSubstract(currentPos, this.dragFrom.currentPos);
+				this.dragFrom.currentPos = currentPos;
+				const actions = this.solveDrag(this.dragFrom.tiles, currentOffset);
 				if (actions.length != 0) {
 					this.dragFrom.dragActions.map((action) => {
 						if (action.isDragTo) {
@@ -343,14 +387,20 @@
 					this.dragFrom.dragActions.map((action) => {
 						if (action.isDragTo) {
 							action.tile.setDragTo();
+						} else {
+							action.tile.updateDragFrom(clientPos);
 						}
 						action.tile.current = action.pos;
 					});
 				}
+
+				this.dragFrom.tiles.map((tile) => {
+					tile.updateDragFrom(clientPos);
+				});
 			}
 		}
 
-		unsetDragFrom(pos: Vec2d | null, clientPos: Vec2d) {
+		unsetDragFrom() {
 			this.dragFrom?.tiles.map((item) => item.unsetDragFrom());
 			this.dragFrom?.dragActions.map((action) => {
 				if (action.isDragTo) {
@@ -367,7 +417,7 @@
 
 	// Drag
 
-	function slotPosFromEl(el: HTMLElement): Vec2d | null {
+	function slotPosFromEl(el: HTMLElement): lm.Vec2d | null {
 		if (el.dataset.posX && el.dataset.posY) {
 			const x = Number(el.dataset.posX);
 			const y = Number(el.dataset.posY);
@@ -377,7 +427,7 @@
 		}
 	}
 
-	function slotPosFromPoint(p: Vec2d): Vec2d | null {
+	function slotPosFromPoint(p: lm.Vec2d): lm.Vec2d | null {
 		for (const el of document.elementsFromPoint(p.x, p.y)) {
 			if (el instanceof HTMLElement) {
 				const pos = slotPosFromEl(el);
@@ -400,13 +450,12 @@
 
 	function onMouseMove(event: MouseEvent) {
 		const clientPos = { x: event.clientX, y: event.clientY };
-		tilesMatrix.dragUpdate(slotPosFromPoint(clientPos), clientPos);
+		tilesMatrix.dragUpdate(clientPos);
 		tilesMatrix = tilesMatrix;
 	}
 
 	function onMouseUp(event: MouseEvent) {
-		const clientPos = { x: event.clientX, y: event.clientY };
-		tilesMatrix.unsetDragFrom(slotPosFromPoint(clientPos), clientPos);
+		tilesMatrix.unsetDragFrom();
 		tilesMatrix = tilesMatrix;
 	}
 
@@ -438,8 +487,8 @@
 	{#each [...tilesMatrix.tiles()] as tile}
 		<div
 			class="tile"
-			class:drag-from={tile.drag.isDragFrom}
-			class:drag-to={tile.drag.isDragTo}
+			class:drag-from={tile.isDragFrom()}
+			class:drag-to={tile.isDragTo()}
 			class:top-ok={tile.isOkWithNext(DIR_2D_TOP)}
 			class:bottom-ok={tile.isOkWithNext(DIR_2D_BOTTOM)}
 			class:left-ok={tile.isOkWithNext(DIR_2D_LEFT)}
@@ -511,7 +560,7 @@
 		border-right-width: 0.2rem;
 	}
 
-	.tile {
+	.tile:not(.tile.drag-from) {
 		transition: top 200ms, left 200ms;
 	}
 
