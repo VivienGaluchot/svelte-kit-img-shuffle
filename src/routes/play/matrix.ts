@@ -2,7 +2,7 @@ import * as rand from '$lib/random';
 import * as lm from '$lib/math';
 
 import { Tile } from './tile';
-import type { PuzzleImage } from './image';
+import { splitInCell, type PuzzleImage } from './image';
 
 export const DIR_2D_TOP = { x: 0, y: -1 };
 export const DIR_2D_BOTTOM = { x: 0, y: 1 };
@@ -25,8 +25,7 @@ export interface DragAction {
 }
 
 export interface MatrixOptions {
-	rows: number;
-	cols: number;
+	tileCount: number;
 	image: PuzzleImage;
 	getGridSize(): lm.Vec2d | null;
 	getSlotPos(pos: lm.Vec2d, cols: number): lm.Vec2d | null;
@@ -35,24 +34,21 @@ export interface MatrixOptions {
 
 export class Matrix {
 	options: MatrixOptions;
+	rows: number;
+	cols: number;
 	matrix: Tile[] = [];
 
 	constructor(options: MatrixOptions) {
 		this.options = options;
+		let tiles = splitInCell(options.image.size, options.tileCount);
+		this.cols = tiles.x;
+		this.rows = tiles.y;
 		this.matrix = [];
 		for (let y = 0; y < this.rows; y++) {
 			for (let x = 0; x < this.cols; x++) {
 				this.matrix.push(new Tile(x, y, this));
 			}
 		}
-	}
-
-	get rows(): number {
-		return this.options.rows;
-	}
-
-	get cols(): number {
-		return this.options.cols;
 	}
 
 	get image(): PuzzleImage {
@@ -116,7 +112,7 @@ export class Matrix {
 
 	style() {
 		return (
-			`aspect-ratio: ${this.image.w} / ${this.image.h}; ` +
+			`aspect-ratio: ${this.image.size.x} / ${this.image.size.y}; ` +
 			`grid-template-columns: repeat(${this.cols}, 1fr);`
 		);
 	}

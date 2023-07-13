@@ -16,8 +16,6 @@ export class Tile {
 			// in cell
 			originCurrent: lm.Vec2d;
 			// in pixel
-			originSlot: lm.Vec2d;
-			// in pixel
 			originMouse: lm.Vec2d;
 			// in pixel
 			pullOffset: lm.Vec2d;
@@ -95,7 +93,6 @@ export class Tile {
 		}
 		this.drag.from = {
 			originCurrent: this.current,
-			originSlot: slot,
 			originMouse: mousePos,
 			pullOffset: { x: 0, y: 0 }
 		};
@@ -105,14 +102,8 @@ export class Tile {
 		if (this.drag.from == null) {
 			throw new Error('updateDragFrom: from unset');
 		}
-		const slot = this.matrix.options.getSlotPos(this.current, this.cols);
-		if (!slot) {
-			throw new Error('updateDragFrom: slot not found');
-		}
 		const mouseDiff = lm.vec2dSubstract(mousePos, this.drag.from.originMouse);
-		const slotDiff = lm.vec2dSubstract(slot, this.drag.from.originSlot);
-		const pullOffset = lm.vec2dSubstract(mouseDiff, slotDiff);
-		this.drag.from.pullOffset = pullOffset;
+		this.drag.from.pullOffset = mouseDiff;
 	}
 
 	unsetDragFrom() {
@@ -145,8 +136,14 @@ export class Tile {
 	style() {
 		const gridSize = this.matrix.options.getGridSize();
 		const initialSlotPos = this.matrix.options.getSlotPos(this.initial, this.cols);
-		const currentSlotPos = this.matrix.options.getSlotPos(this.current, this.cols);
-		const currentSlotSize = this.matrix.options.getSlotSize(this.current, this.cols);
+		let current;
+		if (this.isDragFrom()) {
+			current = this.originOrCurrent();
+		} else {
+			current = this.current;
+		}
+		const currentSlotPos = this.matrix.options.getSlotPos(current, this.cols);
+		const currentSlotSize = this.matrix.options.getSlotSize(current, this.cols);
 		if (gridSize && initialSlotPos && currentSlotPos && currentSlotSize) {
 			const bgPos = lm.vec2dMultiply(initialSlotPos, { x: -1, y: -1 });
 			const bgSize = gridSize;

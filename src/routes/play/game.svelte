@@ -100,9 +100,8 @@
 	// Main
 
 	let matrix = new Matrix({
-		rows: 6,
-		cols: 5,
-		image: { url: demoImage, w: 930, h: 1162 },
+		tileCount: 100,
+		image: { url: demoImage, size: { x: 930, y: 1162 } },
 		getGridSize: getGridSize.call,
 		getSlotPos: getSlotPos.call,
 		getSlotSize: getSlotSize.call
