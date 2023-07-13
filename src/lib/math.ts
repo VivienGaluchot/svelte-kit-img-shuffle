@@ -7,7 +7,7 @@ export function vec2dAdd(a: Vec2d, b: Vec2d): Vec2d {
 	return vec2dZip(a, b, (a, b) => a + b);
 }
 
-export function vec2dSubstract(a: Vec2d, b: Vec2d): Vec2d {
+export function vec2dSubtract(a: Vec2d, b: Vec2d): Vec2d {
 	return vec2dZip(a, b, (a, b) => a - b);
 }
 

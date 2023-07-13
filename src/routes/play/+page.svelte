@@ -1,6 +1,9 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 	import Game from './game.svelte';
+	import Section from '$lib/layout/section.svelte';
+
+	const tileCount: number = parseInt($page.url.searchParams.get('n') ?? '100');
 
 	let game: Game;
 	let showBorders: boolean;
@@ -10,15 +13,17 @@
 	<title>Play - Picture slicer multi</title>
 </svelte:head>
 
-<Game bind:this={game} bind:showBorders />
+<Section>
+	<Game bind:this={game} {showBorders} {tileCount} />
 
-<div class="toolbar">
-	<button on:click={() => game.shuffle()}>Shuffle</button>
-	<div>
-		<input id="boder-checkbox" type="checkbox" bind:checked={showBorders} />
-		<label for="boder-checkbox">Show borders</label>
+	<div class="toolbar">
+		<button on:click={() => game.shuffle()}>Shuffle</button>
+		<div>
+			<input id="boder-checkbox" type="checkbox" bind:checked={showBorders} />
+			<label for="boder-checkbox">Show borders</label>
+		</div>
 	</div>
-</div>
+</Section>
 
 <style>
 	.toolbar {

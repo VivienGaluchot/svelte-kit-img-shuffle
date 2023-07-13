@@ -66,8 +66,8 @@ export class Tile {
 
 	isOkWith(tile: Tile): boolean {
 		return lm.vec2dEqual(
-			lm.vec2dSubstract(tile.current, this.current),
-			lm.vec2dSubstract(tile.initial, this.initial)
+			lm.vec2dSubtract(tile.current, this.current),
+			lm.vec2dSubtract(tile.initial, this.initial)
 		);
 	}
 
@@ -102,7 +102,7 @@ export class Tile {
 		if (this.drag.from == null) {
 			throw new Error('updateDragFrom: from unset');
 		}
-		const mouseDiff = lm.vec2dSubstract(mousePos, this.drag.from.originMouse);
+		const mouseDiff = lm.vec2dSubtract(mousePos, this.drag.from.originMouse);
 		this.drag.from.pullOffset = mouseDiff;
 	}
 
@@ -145,7 +145,13 @@ export class Tile {
 		const currentSlotPos = this.matrix.options.getSlotPos(current, this.cols);
 		const currentSlotSize = this.matrix.options.getSlotSize(current, this.cols);
 		if (gridSize && initialSlotPos && currentSlotPos && currentSlotSize) {
-			const bgPos = lm.vec2dMultiply(initialSlotPos, { x: -1, y: -1 });
+			let bgPos = { ...initialSlotPos };
+			bgPos.x = Math.min(bgPos.x, gridSize.x - currentSlotSize.x);
+			bgPos.x = Math.max(bgPos.x, 0);
+			bgPos.x = bgPos.x * -1;
+			bgPos.y = Math.min(bgPos.y, gridSize.y - currentSlotSize.y);
+			bgPos.y = Math.max(bgPos.y, 0);
+			bgPos.y = bgPos.y * -1;
 			const bgSize = gridSize;
 			return (
 				`left: ${currentSlotPos.x + (this.drag.from?.pullOffset.x ?? 0)}px; ` +

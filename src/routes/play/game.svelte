@@ -7,6 +7,8 @@
 	import { DIR_2D_BOTTOM, DIR_2D_LEFT, DIR_2D_RIGHT, DIR_2D_TOP, Matrix } from './matrix';
 	import { cachedFn } from '$lib/cache';
 
+	// Slots
+
 	const slots: HTMLElement[] = [];
 	let slotGrid: HTMLElement;
 
@@ -99,14 +101,23 @@
 
 	// Main
 
+	export let tileCount: number = 100;
+
+	export let showBorders: boolean = false;
+
 	let matrix = new Matrix({
-		tileCount: 100,
+		tileCount: tileCount,
 		image: { url: demoImage, size: { x: 930, y: 1162 } },
 		getGridSize: getGridSize.call,
 		getSlotPos: getSlotPos.call,
 		getSlotSize: getSlotSize.call
 	});
 	matrix.shuffle();
+
+	export function shuffle() {
+		matrix.shuffle();
+		matrix = matrix;
+	}
 
 	function onResize() {
 		getGridSize.clear();
@@ -122,23 +133,15 @@
 			window.removeEventListener('resize', onResize);
 		};
 	});
-
-	// Exports
-
-	export let showBorders: boolean = false;
-
-	export function shuffle() {
-		matrix.shuffle();
-		matrix = matrix;
-	}
 </script>
 
 <!--
 	TODO
 	- compute rows and cols based on img size and number of pieces
-	- multi player / localised shuffle
+	- multi player / local shuffle
 	- matrix history, integrity check (rollback in case of invalid move)
 	- z layer priority
+	- tile components for optimizations ?
  -->
 <div class="stack" class:show-borders={showBorders}>
 	<div class="grid" style={matrix.style()} bind:this={slotGrid}>

@@ -198,11 +198,11 @@ export class Matrix {
 		const slotSize = this.options.getSlotSize(this.matrix[0].current, this.cols);
 		if (slotSize && this.dragFrom) {
 			// relative to drag start
-			const startClientOffset = lm.vec2dSubstract(mousePos, this.dragFrom.startClient);
+			const startClientOffset = lm.vec2dSubtract(mousePos, this.dragFrom.startClient);
 			const startOffset = lm.vec2dRound(lm.vec2dDivide(startClientOffset, slotSize));
 			// relative to last update
 			const currentPos = lm.vec2dAdd(this.dragFrom.startPos, startOffset);
-			const currentOffset = lm.vec2dSubstract(currentPos, this.dragFrom.currentPos);
+			const currentOffset = lm.vec2dSubtract(currentPos, this.dragFrom.currentPos);
 			this.dragFrom.currentPos = currentPos;
 			const actions = this.solveDrag(this.dragFrom.tiles, currentOffset);
 			if (actions.length != 0) {
