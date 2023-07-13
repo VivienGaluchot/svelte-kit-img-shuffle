@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as paths from '$app/paths';
 	import { goto } from '$app/navigation';
 	import Section from '$lib/layout/section.svelte';
 
@@ -6,7 +7,7 @@
 	let tileCount: number;
 
 	function play() {
-		goto(`/play?n=${tileCount}`);
+		goto(`${paths.base}/play?n=${tileCount}`);
 	}
 </script>
 

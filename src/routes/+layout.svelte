@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as paths from '$app/paths';
 </script>
 
 <svelte:head>
@@ -8,7 +9,10 @@
 <div class="top">
 	<div class="layout">
 		<div class="main">
-			<h1><a class="nav-link" href="/">Picture slicer multi</a></h1>
+			<a class="logo-link" href="{paths.base}/">
+				<img src="{paths.base}/favicon.png" alt="logo" />
+				<h1>Picture slicer multi</h1>
+			</a>
 			<slot />
 		</div>
 
@@ -18,7 +22,6 @@
 
 <style>
 	.top {
-		background-color: rgb(26, 42, 58);
 		color: white;
 		height: 100%;
 		display: flex;
@@ -50,13 +53,25 @@
 		margin: 0;
 	}
 
-	.nav-link {
-		color: rgba(0, 0, 0, 0.5);
+	.logo-link {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
 		text-decoration: none;
+	}
+
+	.logo-link img {
+		max-width: 2rem;
+		max-height: 2rem;
+		image-rendering: crisp-edges;
+	}
+
+	.logo-link h1 {
+		color: white;
 		font-weight: 300;
 	}
 
-	.nav-link:hover {
+	.logo-link:hover {
 		color: rgba(0, 0, 0, 0.6);
 	}
 </style>
