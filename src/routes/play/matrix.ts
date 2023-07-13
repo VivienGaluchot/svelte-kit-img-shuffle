@@ -2,7 +2,7 @@ import * as rand from '$lib/random';
 import * as lm from '$lib/math';
 
 import { Tile } from './tile';
-import { splitInCell, type PuzzleImage } from './image';
+import { splitInCell, type PuzzleImage } from '../../lib/image';
 
 export const DIR_2D_TOP = { x: 0, y: -1 };
 export const DIR_2D_BOTTOM = { x: 0, y: 1 };
@@ -201,7 +201,10 @@ export class Matrix {
 			const startClientOffset = lm.vec2dSubtract(mousePos, this.dragFrom.startClient);
 			const startOffset = lm.vec2dRound(lm.vec2dDivide(startClientOffset, slotSize));
 			// relative to last update
-			const currentPos = lm.vec2dAdd(this.dragFrom.startPos, startOffset);
+			const currentPos = lm.vec2dBound(lm.vec2dAdd(this.dragFrom.startPos, startOffset), {
+				min: { x: 0, y: 0 },
+				max: { x: this.cols - 1, y: this.rows - 1 }
+			});
 			const currentOffset = lm.vec2dSubtract(currentPos, this.dragFrom.currentPos);
 			this.dragFrom.currentPos = currentPos;
 			const actions = this.solveDrag(this.dragFrom.tiles, currentOffset);

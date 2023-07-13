@@ -15,6 +15,17 @@ export function vec2dMultiply(a: Vec2d, b: Vec2d): Vec2d {
 	return vec2dZip(a, b, (a, b) => a * b);
 }
 
+export function vec2dBound(a: Vec2d, bounds: { min?: Vec2d; max?: Vec2d }): Vec2d {
+	let res = a;
+	if (bounds.min) {
+		res = vec2dZip(res, bounds.min, Math.max);
+	}
+	if (bounds.max) {
+		res = vec2dZip(res, bounds.max, Math.min);
+	}
+	return res;
+}
+
 export function vec2dDivide(a: Vec2d, b: Vec2d): Vec2d {
 	return vec2dZip(a, b, (a, b) => a / b);
 }

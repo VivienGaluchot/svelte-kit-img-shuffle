@@ -2,12 +2,13 @@
 	import * as paths from '$app/paths';
 	import { goto } from '$app/navigation';
 	import Section from '$lib/layout/section.svelte';
+	import { images } from '$lib/image';
 
-	let image: number;
+	let imageIndex: number;
 	let tileCount: number;
 
 	function play() {
-		goto(`${paths.base}/play?n=${tileCount}`);
+		goto(`${paths.base}/play?n=${tileCount}&i=${imageIndex}`);
 	}
 </script>
 
@@ -21,14 +22,16 @@
 		<div class="flex-h">
 			<div class="flex-h g-sm">
 				<label for="image-select">Image</label>
-				<select id="image-select" bind:value={image}>
-					<option value={1}>Sea</option>
+				<select id="image-select" bind:value={imageIndex}>
+					{#each images as image, index}
+						<option value={index}>{image.name}</option>
+					{/each}
 				</select>
 			</div>
 			<div class="flex-h g-sm">
 				<label for="tile-count-select">Level</label>
 				<select id="tile-count-select" bind:value={tileCount}>
-					<option value={50}>Easy</option>
+					<option value={25}>Easy</option>
 					<option value={100}>Medium</option>
 					<option value={250}>Hard</option>
 				</select>

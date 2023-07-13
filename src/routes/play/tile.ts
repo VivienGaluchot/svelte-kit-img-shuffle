@@ -1,6 +1,6 @@
 import * as lm from '$lib/math';
 
-import type { PuzzleImage } from './image';
+import type { PuzzleImage } from '../../lib/image';
 import type { Matrix } from './matrix';
 
 export class Tile {
@@ -162,22 +162,6 @@ export class Tile {
 				`background-position: ${bgPos.x}px ${bgPos.y}px; ` +
 				`background-size: ${bgSize.x}px ${bgSize.y}px ; `
 			);
-		}
-	}
-
-	private bgX() {
-		if (this.cols > 1) {
-			return (100 / (this.cols - 1)) * this.initial.x;
-		} else {
-			return 0;
-		}
-	}
-
-	private bgY() {
-		if (this.rows > 1) {
-			return (100 / (this.rows - 1)) * this.initial.y;
-		} else {
-			return 0;
 		}
 	}
 }

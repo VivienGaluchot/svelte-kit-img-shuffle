@@ -2,8 +2,11 @@
 	import { page } from '$app/stores';
 	import Game from './game.svelte';
 	import Section from '$lib/layout/section.svelte';
+	import { type PuzzleImage, images } from '$lib/image';
 
 	const tileCount: number = parseInt($page.url.searchParams.get('n') ?? '100');
+	const imageId: number = parseInt($page.url.searchParams.get('i') ?? '0');
+	const image: PuzzleImage = images[imageId];
 
 	let game: Game;
 	let showBorders: boolean;
@@ -14,7 +17,7 @@
 </svelte:head>
 
 <Section>
-	<Game bind:this={game} {showBorders} {tileCount} />
+	<Game bind:this={game} {showBorders} {tileCount} {image} />
 
 	<div class="toolbar">
 		<button on:click={() => game.shuffle()}>Shuffle</button>

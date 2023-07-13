@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	import demoImage from '$lib/assets/photo-1687057217908-54f8e6d30e3c.avif';
 	import * as lm from '$lib/math';
+	import { cachedFn } from '$lib/cache';
 
 	import { DIR_2D_BOTTOM, DIR_2D_LEFT, DIR_2D_RIGHT, DIR_2D_TOP, Matrix } from './matrix';
-	import { cachedFn } from '$lib/cache';
+	import type { PuzzleImage } from '$lib/image';
 
 	// Slots
 
@@ -101,13 +101,13 @@
 
 	// Main
 
-	export let tileCount: number = 100;
-
-	export let showBorders: boolean = false;
+	export let tileCount: number;
+	export let image: PuzzleImage;
+	export let showBorders: boolean;
 
 	let matrix = new Matrix({
-		tileCount: tileCount,
-		image: { url: demoImage, size: { x: 930, y: 1162 } },
+		tileCount,
+		image,
 		getGridSize: getGridSize.call,
 		getSlotPos: getSlotPos.call,
 		getSlotSize: getSlotSize.call
