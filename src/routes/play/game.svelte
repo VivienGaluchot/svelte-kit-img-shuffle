@@ -174,6 +174,7 @@
 	.stack {
 		position: relative;
 		overflow: hidden;
+		border-radius: 0.2rem;
 	}
 
 	.grid {
@@ -184,8 +185,7 @@
 
 	.slot {
 		user-select: none;
-		outline: 0.2rem solid rgba(0, 0, 0, 0.1);
-		outline-offset: -1rem;
+		background: rgba(0, 0, 0, 0.2);
 	}
 
 	.tile {
