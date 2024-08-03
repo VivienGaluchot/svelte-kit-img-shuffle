@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as paths from '$app/paths';
 	import { page } from '$app/stores';
 	import Game from './game.svelte';
 	import Section from '$lib/layout/section.svelte';
@@ -43,7 +44,7 @@
 			{rows} x {cols}
 		</div>
 		{#if isSolved}
-			<div>Solved ✨ <a href="/">Play again</a></div>
+			<div>Solved ✨ <a href="${paths.base}/">Play again</a></div>
 		{/if}
 		<div class="muted">
 			{actionCount} move{#if actionCount > 1}s{/if}
