@@ -174,6 +174,15 @@ export class Matrix {
 		return out;
 	}
 
+	isSolved() : boolean {
+		for (const tile of this.matrix) {
+			if (!tile.isAtInitial()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	// drag
 
 	dragFrom: DragFromData | null = null;
@@ -231,7 +240,13 @@ export class Matrix {
 		}
 	}
 
-	unsetDragFrom() {
+	unsetDragFrom(pos: lm.Vec2d | null) : boolean {
+		let hasMoved;
+		if (pos && this.dragFrom?.startPos && !lm.vec2dEqual(this.dragFrom?.startPos, pos)) {
+			hasMoved = true;
+		} else {
+			hasMoved = false
+		}
 		this.dragFrom?.tiles.map((item) => item.unsetDragFrom());
 		this.dragFrom?.dragActions.map((action) => {
 			if (action.isDragTo) {
@@ -241,5 +256,6 @@ export class Matrix {
 		});
 		this.dragFrom = null;
 		this.dragTarget = null;
+		return hasMoved;
 	}
 }

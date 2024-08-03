@@ -9,10 +9,10 @@
 <div class="top">
 	<div class="layout">
 		<div class="main">
-			<a class="logo-link" href="{paths.base}/">
+			<div class="logo-bar">
 				<img src="{paths.base}/favicon.png" alt="logo" />
 				<h1>Picture slicer multi</h1>
-			</a>
+			</div>
 			<slot />
 		</div>
 
@@ -22,7 +22,6 @@
 
 <style>
 	.top {
-		color: white;
 		height: 100%;
 		display: flex;
 		flex-direction: column;
@@ -53,25 +52,21 @@
 		margin: 0;
 	}
 
-	.logo-link {
+	.logo-bar {
 		display: flex;
 		align-items: center;
 		gap: 1rem;
 		text-decoration: none;
 	}
 
-	.logo-link img {
+	.logo-bar img {
 		max-width: 2rem;
 		max-height: 2rem;
 		image-rendering: crisp-edges;
 	}
 
-	.logo-link h1 {
+	.logo-bar h1 {
 		color: white;
 		font-weight: 300;
-	}
-
-	.logo-link:hover {
-		color: rgba(0, 0, 0, 0.6);
 	}
 </style>

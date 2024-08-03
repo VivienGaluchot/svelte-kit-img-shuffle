@@ -4,10 +4,7 @@
 	import Section from '$lib/layout/section.svelte';
 	import { images } from '$lib/image';
 
-	let imageIndex: number;
-	let tileCount: number;
-
-	function play() {
+	function play(imageIndex: number, tileCount: number) {
 		goto(`${paths.base}/play?n=${tileCount}&i=${imageIndex}`);
 	}
 </script>
@@ -17,33 +14,33 @@
 </svelte:head>
 
 <Section>
-	<h2>New game</h2>
-	<div class="flex-h">
-		<div class="flex-h">
+	{#each images as image, index}
+		<div class="flex-h row">
 			<div class="flex-h g-sm">
-				<label for="image-select">Image</label>
-				<select id="image-select" bind:value={imageIndex}>
-					{#each images as image, index}
-						<option value={index}>{image.name}</option>
-					{/each}
-				</select>
+				<div class="icon" style="background-color: {image.color};" />
+				{image.name}
 			</div>
 			<div class="flex-h g-sm">
-				<label for="tile-count-select">Level</label>
-				<select id="tile-count-select" bind:value={tileCount}>
-					<option value={25}>Easy</option>
-					<option value={100}>Medium</option>
-					<option value={250}>Hard</option>
-				</select>
+				<button on:click={() => play(index, 25)}>Easy</button>
+				<button on:click={() => play(index, 100)}>Medium</button>
+				<button on:click={() => play(index, 250)}>Hard</button>
 			</div>
 		</div>
-		<button on:click={play}>Play</button>
-	</div>
+	{/each}
 </Section>
 
 <style>
-	h2 {
-		margin: 0;
+	.row {
+		background-color: rgba(255, 255, 255, 0.02);
+		border-radius: 0.2rem;
+		padding-left: 1rem;
+	}
+
+	.icon {
+		width: 1.5rem;
+		height: 1.5rem;
+		border-radius: 1rem;
+		background-color: wheat;
 	}
 
 	.flex-h {
@@ -59,5 +56,14 @@
 
 	.g-sm {
 		gap: 0.5rem;
+	}
+
+	button {
+		border: none;
+		font-weight: lighter;
+	}
+
+	button:hover {
+		cursor: pointer;
 	}
 </style>

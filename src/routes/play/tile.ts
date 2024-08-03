@@ -64,6 +64,10 @@ export class Tile {
 		return this.matrix.tileByCurrent(lm.vec2dAdd(this.current, dir));
 	}
 
+	isAtInitial(): boolean {
+		return lm.vec2dEqual(this.current, this.initial);
+	}
+
 	isOkWith(tile: Tile): boolean {
 		return lm.vec2dEqual(
 			lm.vec2dSubtract(tile.current, this.current),

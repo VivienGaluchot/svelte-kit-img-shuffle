@@ -7,6 +7,18 @@
 	import { DIR_2D_BOTTOM, DIR_2D_LEFT, DIR_2D_RIGHT, DIR_2D_TOP, Matrix } from './matrix';
 	import type { PuzzleImage } from '$lib/image';
 
+	// Publics
+
+	export let tileCount: number;
+	export let image: PuzzleImage;
+	export let showBorders: boolean;
+
+	export let actionCount: number = 0;
+	export let rows: number = 0;
+	export let cols: number = 0;
+
+	export let isSolved: boolean = false;
+
 	// Slots
 
 	const slots: HTMLElement[] = [];
@@ -80,6 +92,7 @@
 	// Drag
 
 	function onMouseDown(event: MouseEvent) {
+		if (isSolved) return;
 		const mousePos = { x: event.clientX, y: event.clientY };
 		const pos = slotPosFromPoint(mousePos);
 		if (pos) {
@@ -89,21 +102,25 @@
 	}
 
 	function onMouseMove(event: MouseEvent) {
+		if (isSolved) return;
 		const mousePos = { x: event.clientX, y: event.clientY };
 		matrix.dragUpdate(mousePos);
 		matrix = matrix;
 	}
 
 	function onMouseUp(event: MouseEvent) {
-		matrix.unsetDragFrom();
+		if (isSolved) return;
+		const mousePos = { x: event.clientX, y: event.clientY };
+		const pos = slotPosFromPoint(mousePos);
+		const hasMoved = matrix.unsetDragFrom(pos);
+		if (hasMoved) {
+			actionCount += 1;
+		}
 		matrix = matrix;
+		isSolved = matrix.isSolved();
 	}
 
 	// Main
-
-	export let tileCount: number;
-	export let image: PuzzleImage;
-	export let showBorders: boolean;
 
 	let matrix = new Matrix({
 		tileCount,
@@ -117,6 +134,7 @@
 	export function shuffle() {
 		matrix.shuffle();
 		matrix = matrix;
+		isSolved = matrix.isSolved();
 	}
 
 	function onResize() {
@@ -128,6 +146,9 @@
 
 	onMount(() => {
 		matrix = matrix;
+		isSolved = matrix.isSolved();
+		rows = matrix.rows;
+		cols = matrix.cols;
 		window.addEventListener('resize', onResize);
 		return () => {
 			window.removeEventListener('resize', onResize);
@@ -137,7 +158,6 @@
 
 <!--
 	TODO
-	- compute rows and cols based on img size and number of pieces
 	- multi player / local shuffle
 	- matrix history, integrity check (rollback in case of invalid move)
 	- z layer priority
@@ -155,6 +175,7 @@
 		{/each}
 	</div>
 	{#each [...matrix.tiles()] as tile}
+		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div
 			class="tile"
 			class:drag-from={tile.isDragFrom()}

@@ -6,6 +6,7 @@ import image2 from '$lib/assets/photo-1689085383650-13d21072f5a6.avif';
 export interface PuzzleImage {
 	name: string;
 	url: string;
+	color: string;
 	// in pixel
 	size: lm.Vec2d;
 }
@@ -16,6 +17,6 @@ export function splitInCell(size: lm.Vec2d, n: number): lm.Vec2d {
 }
 
 export const images: PuzzleImage[] = [
-	{ name: 'sea', url: image1, size: { x: 930, y: 1162 } },
-	{ name: 'town', url: image2, size: { x: 1374, y: 1031 } }
+	{ name: 'Sea', url: image1, size: { x: 930, y: 1162 }, color: "#277d7d" },
+	{ name: 'Town', url: image2, size: { x: 1374, y: 1031 }, color: "#8d8c81" }
 ];
