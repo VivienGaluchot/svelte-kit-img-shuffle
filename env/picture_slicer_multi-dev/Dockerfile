@@ -11,7 +11,7 @@ WORKDIR /home/dev
 RUN echo "alias ll='ls -l'" >> .bashrc
 
 # install node
-ENV NODE_VERSION=18.12.1
+ENV NODE_VERSION=22.5.1
 RUN wget -O - https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
 ENV NVM_DIR=/home/dev/.nvm
 RUN . "$NVM_DIR/nvm.sh" && \
