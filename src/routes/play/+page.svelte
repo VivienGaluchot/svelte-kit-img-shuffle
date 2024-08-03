@@ -44,7 +44,7 @@
 			{rows} x {cols}
 		</div>
 		{#if isSolved}
-			<div>Solved ✨ <a href="${paths.base}/">Play again</a></div>
+			<div>Solved ✨ <a href="/{paths.base}">Play again</a></div>
 		{/if}
 		<div class="muted">
 			{actionCount} move{#if actionCount > 1}s{/if}

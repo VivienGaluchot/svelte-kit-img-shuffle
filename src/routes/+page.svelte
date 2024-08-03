@@ -33,7 +33,7 @@
 	.row {
 		background-color: rgba(255, 255, 255, 0.02);
 		border-radius: 0.2rem;
-		padding-left: 1rem;
+		padding-left: 0.5rem;
 	}
 
 	.icon {
