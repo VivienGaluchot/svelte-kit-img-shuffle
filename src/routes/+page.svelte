@@ -22,8 +22,8 @@
 			</div>
 			<div class="flex-h g-sm">
 				<button on:click={() => play(index, 25)}>Easy</button>
-				<button on:click={() => play(index, 100)}>Medium</button>
-				<button on:click={() => play(index, 250)}>Hard</button>
+				<button on:click={() => play(index, 50)}>Medium</button>
+				<button on:click={() => play(index, 100)}>Hard</button>
 			</div>
 		</div>
 	{/each}
