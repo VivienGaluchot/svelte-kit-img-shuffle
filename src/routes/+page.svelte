@@ -4,7 +4,7 @@
 	import { images } from '$lib/image';
 
 	function getUrl(imageIndex: number, tileCount: number) {
-		return `${paths.base}/play.html?n=${tileCount}&i=${imageIndex}`;
+		return `${paths.base}/play?n=${tileCount}&i=${imageIndex}`;
 	}
 </script>
 
