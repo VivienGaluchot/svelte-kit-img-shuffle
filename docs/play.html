@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" href="/svelte-kit-img-shuffle/favicon.png" />
+		<link rel="icon" href="./favicon.png" />
 		<meta name="viewport" content="width=device-width" />
 
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -13,12 +13,12 @@
 		/>
 
 		
-		<link rel="modulepreload" href="/svelte-kit-img-shuffle/_app/immutable/entry/start.CdY0Ex2_.js">
-		<link rel="modulepreload" href="/svelte-kit-img-shuffle/_app/immutable/chunks/entry.Cr6nEuW3.js">
-		<link rel="modulepreload" href="/svelte-kit-img-shuffle/_app/immutable/chunks/scheduler.CcFN-_cZ.js">
-		<link rel="modulepreload" href="/svelte-kit-img-shuffle/_app/immutable/chunks/paths.W-jdENwy.js">
-		<link rel="modulepreload" href="/svelte-kit-img-shuffle/_app/immutable/entry/app.GNI_lZGT.js">
-		<link rel="modulepreload" href="/svelte-kit-img-shuffle/_app/immutable/chunks/index.Csv5Vs4x.js">
+		<link rel="modulepreload" href="./_app/immutable/entry/start.CdY0Ex2_.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/entry.Cr6nEuW3.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/scheduler.CcFN-_cZ.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/paths.W-jdENwy.js">
+		<link rel="modulepreload" href="./_app/immutable/entry/app.GNI_lZGT.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/index.Csv5Vs4x.js">
 	</head>
 
 	<body data-sveltekit-preload-data="hover">
@@ -26,15 +26,15 @@
 			<script>
 				{
 					__sveltekit_1h0z6ez = {
-						base: "/svelte-kit-img-shuffle",
+						base: new URL(".", location).pathname.slice(0, -1),
 						assets: "/svelte-kit-img-shuffle"
 					};
 
 					const element = document.currentScript.parentElement;
 
 					Promise.all([
-						import("/svelte-kit-img-shuffle/_app/immutable/entry/start.CdY0Ex2_.js"),
-						import("/svelte-kit-img-shuffle/_app/immutable/entry/app.GNI_lZGT.js")
+						import("./_app/immutable/entry/start.CdY0Ex2_.js"),
+						import("./_app/immutable/entry/app.GNI_lZGT.js")
 					]).then(([kit, app]) => {
 						kit.start(app, element);
 					});

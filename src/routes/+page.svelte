@@ -1,11 +1,10 @@
 <script lang="ts">
 	import * as paths from '$app/paths';
-	import { goto } from '$app/navigation';
 	import Section from '$lib/layout/section.svelte';
 	import { images } from '$lib/image';
 
-	function play(imageIndex: number, tileCount: number) {
-		goto(`${paths.base}/play?n=${tileCount}&i=${imageIndex}`);
+	function getUrl(imageIndex: number, tileCount: number) {
+		return `${paths.base}/play.html?n=${tileCount}&i=${imageIndex}`;
 	}
 </script>
 
@@ -21,9 +20,9 @@
 				{image.name}
 			</div>
 			<div class="flex-h g-sm">
-				<button on:click={() => play(index, 25)}>Easy</button>
-				<button on:click={() => play(index, 50)}>Medium</button>
-				<button on:click={() => play(index, 100)}>Hard</button>
+				<a class="button" href={getUrl(index, 25)}>Easy</a>
+				<a class="button" href={getUrl(index, 50)}>Medium</a>
+				<a class="button" href={getUrl(index, 100)}>Hard</a>
 			</div>
 		</div>
 	{/each}
@@ -58,12 +57,12 @@
 		gap: 0.5rem;
 	}
 
-	button {
+	.button {
 		border: none;
 		font-weight: lighter;
 	}
 
-	button:hover {
+	.button:hover {
 		cursor: pointer;
 	}
 </style>
