@@ -174,7 +174,7 @@ export class Matrix {
 		return out;
 	}
 
-	isSolved() : boolean {
+	isSolved(): boolean {
 		for (const tile of this.matrix) {
 			if (!tile.isAtInitial()) {
 				return false;
@@ -240,12 +240,12 @@ export class Matrix {
 		}
 	}
 
-	unsetDragFrom(pos: lm.Vec2d | null) : boolean {
+	unsetDragFrom(pos: lm.Vec2d | null): boolean {
 		let hasMoved;
 		if (pos && this.dragFrom?.startPos && !lm.vec2dEqual(this.dragFrom?.startPos, pos)) {
 			hasMoved = true;
 		} else {
-			hasMoved = false
+			hasMoved = false;
 		}
 		this.dragFrom?.tiles.map((item) => item.unsetDragFrom());
 		this.dragFrom?.dragActions.map((action) => {

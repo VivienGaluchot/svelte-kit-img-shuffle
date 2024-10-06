@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>Picture slicer multi</title>
+	<title>Picture slicer</title>
 </svelte:head>
 
 <div class="top">
@@ -11,7 +11,7 @@
 		<div class="main">
 			<div class="logo-bar">
 				<img src="{paths.base}/favicon.png" alt="logo" />
-				<h1>Picture slicer multi</h1>
+				<h1>Picture slicer</h1>
 			</div>
 			<slot />
 		</div>

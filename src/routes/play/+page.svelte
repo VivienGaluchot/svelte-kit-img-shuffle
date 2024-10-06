@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-	<title>Play - Picture slicer multi</title>
+	<title>Play - Picture slicer</title>
 </svelte:head>
 
 <Section>

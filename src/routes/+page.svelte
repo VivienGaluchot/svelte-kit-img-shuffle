@@ -9,7 +9,7 @@
 </script>
 
 <svelte:head>
-	<title>Picture slicer multi</title>
+	<title>Picture slicer</title>
 </svelte:head>
 
 <Section>
