@@ -165,7 +165,7 @@
  -->
 <div class="stack" class:show-borders={showBorders}>
 	<div class="grid" style={matrix.style()} bind:this={slotGrid}>
-		{#each [...matrix.tiles()] as tile, index}
+		{#each [...matrix.tiles()] as tile, index (tile)}
 			<div
 				class="slot"
 				data-pos-x={tile.initial.x}
@@ -174,7 +174,7 @@
 			/>
 		{/each}
 	</div>
-	{#each [...matrix.tiles()] as tile}
+	{#each [...matrix.tiles()] as tile (tile)}
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div
 			class="tile"

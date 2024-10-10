@@ -6,15 +6,16 @@ export interface CachedFn<F> {
 export function cachedFn<Args extends any[], R>(
 	inner: (...args: Args) => R
 ): CachedFn<(...args: Args) => R> {
-	const fnCache = new Map<Args, R>();
+	const fnCache = new Map<string, R>();
 	return {
 		call: (...args: Args) => {
-			const value = fnCache.get(args);
+			const key = JSON.stringify(args);
+			const value = fnCache.get(key);
 			if (value) {
 				return value;
 			} else {
 				const value: R = inner(...args);
-				fnCache.set(args, value);
+				fnCache.set(key, value);
 				return value;
 			}
 		},
