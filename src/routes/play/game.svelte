@@ -38,7 +38,7 @@
 			}
 			const id = pos.y * cols + pos.x;
 			if (id >= 0 && id < slots.length) {
-				return { x: slots[id].offsetLeft, y: slots[id].offsetTop };
+				return { x: slots[id]!.offsetLeft, y: slots[id]!.offsetTop };
 			}
 		}
 		return null;
@@ -54,7 +54,7 @@
 			if (id < 0 || id >= slots.length) {
 				return null;
 			}
-			const size = { x: slots[id].offsetWidth, y: slots[id].offsetHeight };
+			const size = { x: slots[id]!.offsetWidth, y: slots[id]!.offsetHeight };
 
 			if (slotPos && nextRight) {
 				size.x = nextRight.x - slotPos.x;

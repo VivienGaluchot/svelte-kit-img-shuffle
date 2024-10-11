@@ -179,3 +179,17 @@ export class Tile {
 		}
 	}
 }
+
+export function getBoundingBox(tiles: Tile[]): lm.Rect2d | null {
+	const [first, ...rest] = tiles;
+	if (first) {
+		const rec = { min: first.current, max: first.current };
+		for (const tile of rest) {
+			rec.min = lm.vec2dMin(rec.min, tile.current);
+			rec.max = lm.vec2dMax(rec.max, tile.current);
+		}
+		return rec;
+	} else {
+		return null;
+	}
+}

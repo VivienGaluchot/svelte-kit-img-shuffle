@@ -1,7 +1,7 @@
 import * as rand from '$lib/random';
 import * as lm from '$lib/math';
 
-import { Tile } from './tile';
+import { Tile, getBoundingBox } from './tile';
 import { splitInCell, type PuzzleImage } from '../../lib/image';
 
 export const DIR_2D_TOP = { x: 0, y: -1 };
@@ -11,11 +11,13 @@ export const DIR_2D_RIGHT = { x: 1, y: 0 };
 export const DIRS_2D = [DIR_2D_TOP, DIR_2D_BOTTOM, DIR_2D_LEFT, DIR_2D_RIGHT];
 
 export interface DragFromData {
-	// drag start in pixel
+	// drag start in pixels
 	startClient: lm.Vec2d;
-	// drag start in cell
+	// drag start in cells
 	startPos: lm.Vec2d;
-	// drag position in cell
+	// bounding box for offset relative to start position in cells
+	startOffsetBoundingBox: lm.Rect2d;
+	// drag position in cells
 	currentPos: lm.Vec2d;
 	// tiles dragged
 	tiles: Tile[];
@@ -42,6 +44,7 @@ export class Matrix {
 	rows: number;
 	cols: number;
 	matrix: Tile[] = [];
+	bounds: lm.Rect2d;
 
 	constructor(options: MatrixOptions) {
 		this.options = options;
@@ -54,6 +57,10 @@ export class Matrix {
 				this.matrix.push(new Tile(x, y, this));
 			}
 		}
+		this.bounds = {
+			min: { x: 0, y: 0 },
+			max: { x: this.cols - 1, y: this.rows - 1 }
+		};
 	}
 
 	get image(): PuzzleImage {
@@ -85,7 +92,7 @@ export class Matrix {
 
 	tileByInitial(p: lm.Vec2d): Tile | null {
 		if (this.isInRange(p)) {
-			return this.matrix[p.y * this.cols + p.x];
+			return this.matrix[p.y * this.cols + p.x]!;
 		} else {
 			return null;
 		}
@@ -130,7 +137,7 @@ export class Matrix {
 		];
 		rand.shuffle(positions);
 		for (const index in this.matrix) {
-			this.matrix[index].current = positions[index];
+			this.matrix[index]!.current = positions[index]!;
 		}
 	}
 
@@ -196,12 +203,21 @@ export class Matrix {
 		const tile = this.tileByOriginCurrent(pos);
 		if (tile) {
 			const tiles = [...this.tileGroup(tile)];
+			const boundingBox = getBoundingBox(tiles);
+			if (boundingBox == null) {
+				throw new Error('setDragFrom: boundingBox null');
+			}
+			const startOffsetBoundingBox = {
+				min: lm.vec2dSubtract(this.bounds.min, boundingBox.min),
+				max: lm.vec2dSubtract(this.bounds.max, boundingBox.max)
+			};
 			this.dragFrom = {
 				startClient: mousePos,
 				startPos: pos,
 				currentPos: pos,
 				tiles,
-				dragActions: []
+				dragActions: [],
+				startOffsetBoundingBox: startOffsetBoundingBox
 			};
 			tiles.map((tile) => tile.setDragFrom(mousePos));
 		}
@@ -212,16 +228,19 @@ export class Matrix {
 	}
 
 	dragUpdate(mousePos: lm.Vec2d): void {
-		const slotSize = this.options.getSlotSize(this.matrix[0].current, this.cols);
+		const slotSize = this.options.getSlotSize(this.matrix[0]!.current, this.cols);
 		if (slotSize && this.dragFrom) {
 			// relative to drag start
 			const startClientOffset = lm.vec2dSubtract(mousePos, this.dragFrom.startClient);
-			const startOffset = lm.vec2dRound(lm.vec2dDivide(startClientOffset, slotSize));
+			const startOffset = lm.vec2dBound(
+				lm.vec2dRound(lm.vec2dDivide(startClientOffset, slotSize)),
+				this.dragFrom.startOffsetBoundingBox
+			);
 			// relative to last update
-			const currentPos = lm.vec2dBound(lm.vec2dAdd(this.dragFrom.startPos, startOffset), {
-				min: { x: 0, y: 0 },
-				max: { x: this.cols - 1, y: this.rows - 1 }
-			});
+			const currentPos = lm.vec2dBound(
+				lm.vec2dAdd(this.dragFrom.startPos, startOffset),
+				this.bounds
+			);
 			const currentOffset = lm.vec2dSubtract(currentPos, this.dragFrom.currentPos);
 			this.dragFrom.currentPos = currentPos;
 			const actions = this.solveDrag(this.dragFrom.tiles, currentOffset);

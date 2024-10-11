@@ -3,6 +3,16 @@ export interface Vec2d {
 	y: number;
 }
 
+export interface Rect2d {
+	min: Vec2d;
+	max: Vec2d;
+}
+
+export interface RectBound2d {
+	min?: Vec2d;
+	max?: Vec2d;
+}
+
 export function vec2dAdd(a: Vec2d, b: Vec2d): Vec2d {
 	return vec2dZip(a, b, (a, b) => a + b);
 }
@@ -15,7 +25,7 @@ export function vec2dMultiply(a: Vec2d, b: Vec2d): Vec2d {
 	return vec2dZip(a, b, (a, b) => a * b);
 }
 
-export function vec2dBound(a: Vec2d, bounds: { min?: Vec2d; max?: Vec2d }): Vec2d {
+export function vec2dBound(a: Vec2d, bounds: RectBound2d): Vec2d {
 	let res = a;
 	if (bounds.min) {
 		res = vec2dZip(res, bounds.min, Math.max);
@@ -32,6 +42,14 @@ export function vec2dDivide(a: Vec2d, b: Vec2d): Vec2d {
 
 export function vec2dMod(a: Vec2d, b: Vec2d): Vec2d {
 	return vec2dZip(a, b, (a, b) => a % b);
+}
+
+export function vec2dMin(a: Vec2d, b: Vec2d): Vec2d {
+	return vec2dZip(a, b, Math.min);
+}
+
+export function vec2dMax(a: Vec2d, b: Vec2d): Vec2d {
+	return vec2dZip(a, b, Math.max);
 }
 
 export function vec2dFloor(a: Vec2d): Vec2d {
