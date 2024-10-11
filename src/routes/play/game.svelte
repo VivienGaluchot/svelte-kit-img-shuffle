@@ -14,6 +14,7 @@
 	export let showBorders: boolean;
 
 	export let actionCount: number = 0;
+	export let durationInSec: number = 0;
 	export let rows: number = 0;
 	export let cols: number = 0;
 
@@ -138,6 +139,15 @@
 		getSlotSize: getSlotSize.call
 	});
 	matrix.shuffle();
+
+	const interval = setInterval(() => {
+		if (isSolved) {
+			clearInterval(interval);
+		}
+		if (!document.hidden) {
+			durationInSec += 1;
+		}
+	}, 1000);
 
 	export function shuffle() {
 		matrix.shuffle();

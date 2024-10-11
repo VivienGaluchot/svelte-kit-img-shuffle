@@ -7,9 +7,10 @@
 
 	const tileCount: number = parseInt($page.url.searchParams.get('n') ?? '100');
 	const imageId: number = parseInt($page.url.searchParams.get('i') ?? '0');
-	const image: PuzzleImage = images[imageId];
+	const image: PuzzleImage = images[imageId]!;
 
 	let actionCount: number;
+	let durationInSec: number;
 	let rows: number;
 	let cols: number;
 	let isSolved: boolean;
@@ -29,6 +30,7 @@
 		bind:cols
 		bind:actionCount
 		bind:isSolved
+		bind:durationInSec
 		{showBorders}
 		{tileCount}
 		{image}
@@ -47,7 +49,9 @@
 			<div>Solved ✨ <a href={paths.base + '/'}>Play again</a></div>
 		{/if}
 		<div class="muted">
-			{actionCount} move{#if actionCount > 1}s{/if}
+			{actionCount} move{#if actionCount > 1}s{/if} | {Math.floor(durationInSec / 60)
+				.toString()
+				.padStart(2, '0')}:{(durationInSec % 60).toString().padStart(2, '0')}
 		</div>
 	</div>
 </Section>
