@@ -11,10 +11,15 @@ export const DIR_2D_RIGHT = { x: 1, y: 0 };
 export const DIRS_2D = [DIR_2D_TOP, DIR_2D_BOTTOM, DIR_2D_LEFT, DIR_2D_RIGHT];
 
 export interface DragFromData {
+	// drag start in pixel
 	startClient: lm.Vec2d;
+	// drag start in cell
 	startPos: lm.Vec2d;
+	// drag position in cell
 	currentPos: lm.Vec2d;
+	// tiles dragged
 	tiles: Tile[];
+	// list of tiles impacted by the drag
 	dragActions: DragAction[];
 }
 
@@ -186,9 +191,8 @@ export class Matrix {
 	// drag
 
 	dragFrom: DragFromData | null = null;
-	dragTarget: Tile | null = null;
 
-	setDragFrom(pos: lm.Vec2d, mousePos: lm.Vec2d) {
+	setDragFrom(pos: lm.Vec2d, mousePos: lm.Vec2d): void {
 		const tile = this.tileByOriginCurrent(pos);
 		if (tile) {
 			const tiles = [...this.tileGroup(tile)];
@@ -203,7 +207,11 @@ export class Matrix {
 		}
 	}
 
-	dragUpdate(mousePos: lm.Vec2d) {
+	isDragging(): boolean {
+		return this.dragFrom != null;
+	}
+
+	dragUpdate(mousePos: lm.Vec2d): void {
 		const slotSize = this.options.getSlotSize(this.matrix[0].current, this.cols);
 		if (slotSize && this.dragFrom) {
 			// relative to drag start
@@ -255,7 +263,11 @@ export class Matrix {
 			action.tile.current = action.pos;
 		});
 		this.dragFrom = null;
-		this.dragTarget = null;
 		return hasMoved;
+	}
+
+	cancelDrag(): void {
+		this.matrix.forEach((tile) => tile.cancelDrag());
+		this.dragFrom = null;
 	}
 }

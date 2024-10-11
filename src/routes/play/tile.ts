@@ -137,6 +137,16 @@ export class Tile {
 		this.drag.to = null;
 	}
 
+	cancelDrag() {
+		if (this.drag.from) {
+			this.current = this.drag.from.originCurrent;
+			this.unsetDragFrom();
+		}
+		if (this.drag.to) {
+			this.unsetDragTo();
+		}
+	}
+
 	style() {
 		const gridSize = this.matrix.options.getGridSize();
 		const initialSlotPos = this.matrix.options.getSlotPos(this.initial, this.cols);

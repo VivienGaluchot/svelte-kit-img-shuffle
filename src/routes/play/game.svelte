@@ -93,16 +93,23 @@
 
 	function onMouseDown(event: MouseEvent) {
 		if (isSolved) return;
-		const mousePos = { x: event.clientX, y: event.clientY };
-		const pos = slotPosFromPoint(mousePos);
-		if (pos) {
-			matrix.setDragFrom(pos, mousePos);
+		if (matrix.isDragging()) {
+			// handle edge cases where 2 mouse down are called without a mouse up in between
+			matrix.cancelDrag();
 			matrix = matrix;
+		} else {
+			const mousePos = { x: event.clientX, y: event.clientY };
+			const pos = slotPosFromPoint(mousePos);
+			if (pos) {
+				matrix.setDragFrom(pos, mousePos);
+				matrix = matrix;
+			}
 		}
 	}
 
 	function onMouseMove(event: MouseEvent) {
 		if (isSolved) return;
+		if (!matrix.isDragging()) return;
 		const mousePos = { x: event.clientX, y: event.clientY };
 		matrix.dragUpdate(mousePos);
 		matrix = matrix;
@@ -110,6 +117,7 @@
 
 	function onMouseUp(event: MouseEvent) {
 		if (isSolved) return;
+		if (!matrix.isDragging()) return;
 		const mousePos = { x: event.clientX, y: event.clientY };
 		const pos = slotPosFromPoint(mousePos);
 		const hasMoved = matrix.unsetDragFrom(pos);
