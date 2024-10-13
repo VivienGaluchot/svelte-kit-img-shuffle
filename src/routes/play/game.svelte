@@ -218,7 +218,7 @@
 
 	.grid {
 		display: grid;
-		width: 50rem;
+		/* width: 50rem; */
 		max-width: 100%;
 	}
 
