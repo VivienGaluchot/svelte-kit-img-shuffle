@@ -1,10 +1,30 @@
 <script lang="ts">
 	import * as paths from '$app/paths';
 	import Section from '$lib/layout/section.svelte';
-	import { images } from '$lib/image';
+	import * as im from '$lib/image';
 
-	function getUrl(imageIndex: number, tileCount: number) {
-		return `${paths.base}/play?n=${tileCount}&i=${imageIndex}`;
+	function getUrl(tileCount: number, image: im.ImageResource) {
+		let url = new URL(`${paths.base}/play`, window.location.origin);
+		url.searchParams.set('n', `${tileCount}`);
+		url.searchParams.set('i', `${encodeURIComponent(JSON.stringify(image))}`);
+		return url.toString();
+	}
+
+	let customImages: im.ImageResource[] = [];
+
+	let fileInput: HTMLInputElement;
+	let fileInputValue: FileList | null = null;
+	$: if (fileInputValue) {
+		const file = fileInputValue[0];
+		if (file) {
+			// TODO append when persistent
+			customImages = [
+				{
+					name: file.name,
+					url: URL.createObjectURL(file)
+				}
+			];
+		}
 	}
 </script>
 
@@ -13,16 +33,45 @@
 </svelte:head>
 
 <Section>
-	{#each images as image, index}
+	Choose an image
+	{#each im.staticImages as image}
 		<div class="flex-h row">
-			<div class="flex-h g-sm">
-				<div class="icon" style="background-color: {image.color};" />
-				{image.name}
+			<div class="flex-h g-sm dropzone">
+				<div class="icon" style="background-image: url({image.url});" />
+				<div class="img_name">{image.name}</div>
 			</div>
 			<div class="flex-h g-sm">
-				<a class="button" href={getUrl(index, 25)}>Easy</a>
-				<a class="button" href={getUrl(index, 50)}>Medium</a>
-				<a class="button" href={getUrl(index, 100)}>Hard</a>
+				<a class="button" href={getUrl(25, image)}>Easy</a>
+				<a class="button" href={getUrl(50, image)}>Medium</a>
+				<a class="button" href={getUrl(100, image)}>Hard</a>
+			</div>
+		</div>
+	{/each}
+</Section>
+<Section>
+	<div class="flex-h">
+		<div>Play with custom image</div>
+		<div>
+			<button class="button" on:click={() => fileInput.click()}>+</button>
+			<input
+				bind:this={fileInput}
+				hidden
+				type="file"
+				accept="image/*"
+				bind:files={fileInputValue}
+			/>
+		</div>
+	</div>
+	{#each customImages as image}
+		<div class="flex-h row">
+			<div class="flex-h g-sm dropzone">
+				<div class="icon" style="background-image: url({image.url});" />
+				<div class="img_name">{image.name}</div>
+			</div>
+			<div class="flex-h g-sm">
+				<a class="button" href={getUrl(25, image)}>Easy</a>
+				<a class="button" href={getUrl(50, image)}>Medium</a>
+				<a class="button" href={getUrl(100, image)}>Hard</a>
 			</div>
 		</div>
 	{/each}
@@ -39,7 +88,17 @@
 		width: 1.5rem;
 		height: 1.5rem;
 		border-radius: 1rem;
-		background-color: wheat;
+		background-color: #fff5;
+		background-size: cover;
+		border: 1px solid white;
+	}
+
+	.img_name {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: 10rem;
+		direction: rtl;
 	}
 
 	.flex-h {

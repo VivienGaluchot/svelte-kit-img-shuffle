@@ -9,13 +9,14 @@
 <div class="top">
 	<div class="layout">
 		<div class="main">
-			<div class="logo-bar">
-				<img src="{paths.base}/favicon.png" alt="logo" />
-				<h1>Picture slicer</h1>
-			</div>
+			<header>
+				<div class="logo-bar">
+					<img src="{paths.base}/favicon.png" alt="logo" />
+					<h1>Picture slicer</h1>
+				</div>
+			</header>
 			<slot />
 		</div>
-
 		<div class="foot" />
 	</div>
 </div>
@@ -46,6 +47,12 @@
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
+	}
+
+	header {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
 	}
 
 	h1 {
