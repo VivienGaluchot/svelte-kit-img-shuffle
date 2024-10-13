@@ -14,14 +14,14 @@
 
 {#each images as image}
 	<div class="flex-h row">
-		<div class="flex-h g-sm dropzone">
+		<div class="flex-h g-sm">
 			<div class="icon" style="background-image: url({image.url});" />
 			<div class="img-name">{image.name}</div>
 		</div>
 		<div class="flex-h g-sm">
-			<a class="button" href={getUrl(25, image)}>Easy</a>
-			<a class="button" href={getUrl(50, image)}>Medium</a>
-			<a class="button" href={getUrl(100, image)}>Hard</a>
+			<a class="button" href={getUrl(40, image)}>Easy</a>
+			<a class="button" href={getUrl(80, image)}>Medium</a>
+			<a class="button" href={getUrl(120, image)}>Hard</a>
 		</div>
 	</div>
 {/each}
