@@ -18,7 +18,11 @@
 		<slot />
 	</div>
 
-	<footer>hi</footer>
+	<footer>
+		<a class="button" href="https://github.com/VivienGaluchot/svelte-kit-img-shuffle/issues"
+			>🐞 see a bug?</a
+		>
+	</footer>
 </div>
 
 <style>
@@ -47,26 +51,25 @@
 	}
 
 	footer {
-		display: flex;
-		justify-content: space-between;
-		align-items: baseline;
-		background-color: #0002;
+		text-align: center;
+		font-weight: 200;
 	}
 
 	h1 {
+		font-size: 1.5rem;
 		margin: 0;
 	}
 
 	.logo-bar {
 		display: flex;
 		align-items: center;
-		gap: 1rem;
+		gap: 0.5rem;
 		text-decoration: none;
 	}
 
 	.logo-bar img {
-		max-width: 2rem;
-		max-height: 2rem;
+		max-width: 1.5rem;
+		max-height: 1.5rem;
 		image-rendering: crisp-edges;
 	}
 
