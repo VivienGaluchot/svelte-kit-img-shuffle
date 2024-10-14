@@ -2,6 +2,7 @@
 	import * as paths from '$app/paths';
 	import { page } from '$app/stores';
 	import * as im from '$lib/image';
+	import * as gs from '$lib/gameSetting';
 	import Container from '$lib/layout/container.svelte';
 	import Content from '$lib/layout/content.svelte';
 	import Footer from '$lib/layout/footer.svelte';
@@ -9,23 +10,9 @@
 	import Section from '$lib/layout/section.svelte';
 	import Game from './game.svelte';
 
-	function getImageFromUrl(): im.ImageResource | null {
-		try {
-			const param = $page.url.searchParams.get('i');
-			if (!param) {
-				throw new Error("missing 'i' url parameter");
-			}
-			const resource: im.ImageResource = JSON.parse(decodeURIComponent(param));
-			// TODO validate `resource` ?
-			return resource;
-		} catch (err) {
-			console.error('failed to parse url image', err);
-		}
-		return null;
-	}
-
-	const tileCount: number = parseInt($page.url.searchParams.get('n') ?? '100');
-	const imageResource = getImageFromUrl() ?? im.staticImages[0]!;
+	const gameSettings = gs.decodeGameSettingsFromUrl($page.url);
+	const tileCount = gameSettings.tileCount;
+	const imageResource = gs.getImage(gameSettings);
 	const imagePromise = im.toPuzzleImage(imageResource);
 
 	let actionCount: number;

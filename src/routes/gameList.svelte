@@ -1,27 +1,26 @@
 <script lang="ts">
 	import * as paths from '$app/paths';
-	import * as im from '$lib/image';
+	import * as gs from '$lib/gameSetting';
 
-	function getUrl(tileCount: number, image: im.ImageResource) {
-		let url = new URL(`${paths.base}/play`, window.location.origin);
-		url.searchParams.set('n', `${tileCount}`);
-		url.searchParams.set('i', `${encodeURIComponent(JSON.stringify(image))}`);
+	function getUrl(tileCount: number, image: gs.ImageSettings) {
+		const url = new URL(`${paths.base}/play`, window.location.origin);
+		gs.encodeSettingToUrl(url, { tileCount, ...image });
 		return url.toString();
 	}
 
-	export let images: im.ImageResource[];
+	export let images: gs.ImageSettings[];
 </script>
 
-{#each images as image}
+{#each images as imageSetting}
 	<div class="flex-h row">
 		<div class="flex-h g-sm">
-			<div class="icon" style="background-image: url({image.url});" />
-			<div class="img-name">{image.name}</div>
+			<div class="icon" style="background-image: url({gs.getImage(imageSetting).url});" />
+			<div class="img-name">{gs.getImage(imageSetting).name}</div>
 		</div>
 		<div class="flex-h g-sm">
-			<a class="button" href={getUrl(40, image)}>Easy</a>
-			<a class="button" href={getUrl(80, image)}>Medium</a>
-			<a class="button" href={getUrl(120, image)}>Hard</a>
+			<a class="button" href={getUrl(40, imageSetting)}>Easy</a>
+			<a class="button" href={getUrl(80, imageSetting)}>Medium</a>
+			<a class="button" href={getUrl(120, imageSetting)}>Hard</a>
 		</div>
 	</div>
 {/each}

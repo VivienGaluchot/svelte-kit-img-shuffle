@@ -1,5 +1,4 @@
 import type * as lm from '$lib/math';
-import type { Picture } from 'vite-imagetools';
 
 import image1 from '$lib/assets/photo-1687057217908-54f8e6d30e3c.avif';
 import image2 from '$lib/assets/photo-1689085383650-13d21072f5a6.avif';
@@ -34,15 +33,15 @@ export async function toPuzzleImage(res: ImageResource): Promise<PuzzleImage> {
 	};
 }
 
-export const staticImages: ImageResource[] = [
-	{ name: 'Sea', url: image1 },
-	{ name: 'Town', url: image2 },
-	{ name: 'Street', url: image3 },
-	{ name: 'Car', url: image4 },
-	{ name: 'Air ballon', url: image5 },
-	{ name: 'Tag', url: image6 },
-	{ name: 'Cozy', url: image7 }
-];
+export const staticImages: Record<string, ImageResource> = {
+	sea: { name: 'Sea', url: image1 },
+	town: { name: 'Town', url: image2 },
+	street: { name: 'Street', url: image3 },
+	car: { name: 'Car', url: image4 },
+	air_ballon: { name: 'Air ballon', url: image5 },
+	tag: { name: 'Tag', url: image6 },
+	cosy: { name: 'Cozy', url: image7 }
+};
 
 export function splitInCell(size: lm.Vec2d, n: number): lm.Vec2d {
 	const y = Math.sqrt((n * size.y) / size.x);

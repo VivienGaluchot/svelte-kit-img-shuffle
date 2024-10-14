@@ -1,14 +1,19 @@
 <script lang="ts">
-	import * as paths from '$app/paths';
 	import Section from '$lib/layout/section.svelte';
 	import * as im from '$lib/image';
-	import ImgList from './imgList.svelte';
+	import * as gs from '$lib/gameSetting';
+	import GameList from './gameList.svelte';
 	import Header from '$lib/layout/header.svelte';
 	import Footer from '$lib/layout/footer.svelte';
 	import Container from '$lib/layout/container.svelte';
 	import Content from '$lib/layout/content.svelte';
 
-	let customImages: im.ImageResource[] = [];
+	let customImages: gs.ImageSettings[] = [];
+
+	const staticImageSettings: gs.ImageSettings[] = [];
+	for (const key of Object.keys(im.staticImages)) {
+		staticImageSettings.push({ kind: 'static', key });
+	}
 
 	let fileInput: HTMLInputElement;
 	let fileInputValue: FileList | null = null;
@@ -18,8 +23,11 @@
 			// TODO append when persistent
 			customImages = [
 				{
-					name: file.name,
-					url: URL.createObjectURL(file)
+					kind: 'custom',
+					image: {
+						name: file.name,
+						url: URL.createObjectURL(file)
+					}
 				}
 			];
 		}
@@ -35,7 +43,7 @@
 	<Content>
 		<Section>
 			Choose an image
-			<ImgList images={im.staticImages} />
+			<GameList images={staticImageSettings} />
 		</Section>
 
 		<Section>
@@ -52,7 +60,7 @@
 					/>
 				</div>
 			</div>
-			<ImgList images={customImages} />
+			<GameList images={customImages} />
 		</Section>
 	</Content>
 	<Footer />
