@@ -2,8 +2,10 @@
 </script>
 
 <footer>
-	<a class="button" href="https://github.com/VivienGaluchot/svelte-kit-img-shuffle/issues"
-		>🐞 see a bug?</a
+	<a
+		class="button"
+		href="https://github.com/VivienGaluchot/svelte-kit-img-shuffle/issues"
+		target="_blank">🐞 see a bug?</a
 	>
 </footer>
 

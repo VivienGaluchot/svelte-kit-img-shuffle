@@ -62,9 +62,9 @@
 
 				<div class="toolbar">
 					<!-- <div>
-			<input id="boder-checkbox" type="checkbox" bind:checked={showBorders} />
-			<label for="boder-checkbox">Show borders</label>
-		</div> -->
+						<input id="boder-checkbox" type="checkbox" bind:checked={showBorders} />
+						<label for="boder-checkbox">Show borders</label>
+					</div> -->
 					<!-- <button on:click={() => game.shuffle()}>Shuffle</button> -->
 					<div class="muted">
 						{rows} x {cols}
