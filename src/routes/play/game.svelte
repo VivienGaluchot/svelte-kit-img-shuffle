@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { beforeNavigate } from '$app/navigation';
 	import { onMount } from 'svelte';
 
 	import * as lm from '$lib/math';
+	import * as rd from '$lib/random';
 	import { cachedFn } from '$lib/cache';
 
 	import { DIR_2D_BOTTOM, DIR_2D_LEFT, DIR_2D_RIGHT, DIR_2D_TOP, Matrix } from './matrix';
@@ -10,6 +12,7 @@
 	// Publics
 
 	export let tileCount: number;
+	export let seed: string;
 	export let image: PuzzleImage;
 	export let showBorders: boolean;
 
@@ -138,21 +141,16 @@
 		getSlotPos: getSlotPos.call,
 		getSlotSize: getSlotSize.call
 	});
-	matrix.shuffle();
+	matrix.shuffle(rd.getSfc32(rd.getSeed128(seed)));
 
 	const interval = setInterval(() => {
-		if (isSolved) {
-			clearInterval(interval);
-		}
 		if (!document.hidden) {
 			durationInSec += 1;
 		}
 	}, 1000);
 
-	export function shuffle() {
-		matrix.shuffle();
-		matrix = matrix;
-		isSolved = matrix.isSolved();
+	$: if (isSolved) {
+		clearInterval(interval);
 	}
 
 	function onResize() {
@@ -161,6 +159,20 @@
 		getSlotSize.clear();
 		matrix = matrix;
 	}
+
+	function onBeforeUnload(event: Event) {
+		if (!isSolved) {
+			event.preventDefault();
+		}
+	}
+
+	beforeNavigate(({ cancel }) => {
+		if (!isSolved) {
+			if (!window.confirm('Puzzle state not saved, exit anyway?')) {
+				cancel();
+			}
+		}
+	});
 
 	onMount(() => {
 		matrix = matrix;
@@ -173,6 +185,8 @@
 		};
 	});
 </script>
+
+<svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove} on:beforeunload={onBeforeUnload} />
 
 <!--
 	TODO
@@ -206,8 +220,6 @@
 		/>
 	{/each}
 </div>
-
-<svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove} />
 
 <style>
 	.stack {

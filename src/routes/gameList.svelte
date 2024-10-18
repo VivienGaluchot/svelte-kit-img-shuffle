@@ -1,10 +1,11 @@
 <script lang="ts">
 	import * as paths from '$app/paths';
 	import * as gs from '$lib/gameSetting';
+	import * as rd from '$lib/random';
 
 	function getUrl(tileCount: number, image: gs.ImageSettings) {
 		const url = new URL(`${paths.base}/play`, window.location.origin);
-		gs.encodeSettingToUrl(url, { tileCount, ...image });
+		gs.encodeSettingToUrl(url, { tileCount, seed: rd.getRandomString(Math.random, 6), ...image });
 		return url.toString();
 	}
 

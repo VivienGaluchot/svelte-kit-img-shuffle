@@ -17,10 +17,13 @@ export type ImageSettings =
 export type GameSettings = ImageSettings & {
 	// number of tile for the game
 	tileCount: number;
+	// seed
+	seed: string;
 };
 
 export function encodeSettingToUrl(url: URL, settings: GameSettings): void {
 	url.searchParams.set('n', `${settings.tileCount}`);
+	url.searchParams.set('s', `${encodeURIComponent(settings.seed)}`);
 	if (settings.kind == 'static') {
 		url.searchParams.set('i', encodeURIComponent(settings.key));
 	}
@@ -36,13 +39,19 @@ export function decodeGameSettingsFromUrl(url: URL): GameSettings {
 	}
 	const tileCount: number = parseInt(n);
 
+	const s = url.searchParams.get('s');
+	if (!s) {
+		throw new Error("missing 's' url parameter");
+	}
+	const seed = decodeURIComponent(s);
+
 	const i = url.searchParams.get('i');
 	const c = url.searchParams.get('c');
 	if (i) {
-		return { kind: 'static', tileCount, key: i };
+		return { kind: 'static', tileCount, seed, key: i };
 	} else if (c) {
 		const image: im.ImageResource = JSON.parse(decodeURIComponent(c));
-		return { kind: 'custom', tileCount, image };
+		return { kind: 'custom', tileCount, seed, image };
 	} else {
 		throw new Error("missing 'c' or 's' url parameter");
 	}

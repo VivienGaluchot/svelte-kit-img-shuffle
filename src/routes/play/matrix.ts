@@ -1,4 +1,4 @@
-import * as rand from '$lib/random';
+import * as rd from '$lib/random';
 import * as lm from '$lib/math';
 
 import { Tile, getBoundingBox } from './tile';
@@ -129,13 +129,13 @@ export class Matrix {
 		);
 	}
 
-	shuffle() {
+	shuffle(rand?: rd.RandomGenerator) {
 		const positions = [
 			...this.matrix.map((tile) => {
 				return { ...tile.current };
 			})
 		];
-		rand.shuffle(positions);
+		rd.shuffle(rand ?? Math.random, positions);
 		for (const index in this.matrix) {
 			this.matrix[index]!.current = positions[index]!;
 		}

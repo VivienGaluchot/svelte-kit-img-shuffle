@@ -12,6 +12,7 @@
 
 	const gameSettings = gs.decodeGameSettingsFromUrl($page.url);
 	const tileCount = gameSettings.tileCount;
+	const seed = gameSettings.seed;
 	const imageResource = gs.getImage(gameSettings);
 	const imagePromise = im.toPuzzleImage(imageResource);
 
@@ -57,6 +58,7 @@
 					bind:durationInSec
 					{showBorders}
 					{tileCount}
+					{seed}
 					{image}
 				/>
 
@@ -65,7 +67,6 @@
 						<input id="boder-checkbox" type="checkbox" bind:checked={showBorders} />
 						<label for="boder-checkbox">Show borders</label>
 					</div> -->
-					<!-- <button on:click={() => game.shuffle()}>Shuffle</button> -->
 					<div class="muted">
 						{rows} x {cols}
 					</div>
