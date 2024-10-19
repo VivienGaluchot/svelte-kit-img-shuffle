@@ -15,7 +15,9 @@
 {#each images as imageSetting}
 	<div class="flex-h row">
 		<div class="flex-h g-sm">
-			<div class="icon" style="background-image: url({gs.getImage(imageSetting).url});" />
+			<div class="icon">
+				<div class="icon-bg" style="background-image: url({gs.getImage(imageSetting).url});" />
+			</div>
 			<div class="img-name">{gs.getImage(imageSetting).name}</div>
 		</div>
 		<div class="flex-h g-sm">
@@ -52,9 +54,19 @@
 		width: 1.5rem;
 		height: 1.5rem;
 		border-radius: 1rem;
+		overflow: hidden;
+	}
+
+	.icon-bg {
+		width: 150%;
+		height: 150%;
+		position: relative;
+		top: -25%;
+		left: -25%;
+		border-radius: 1rem;
 		background-color: #fff5;
 		background-size: cover;
-		border: 1px solid white;
+		filter: blur(0.2rem) saturate(1.5);
 	}
 
 	.img-name {

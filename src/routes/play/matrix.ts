@@ -144,16 +144,16 @@ export class Matrix {
 	solveDrag(tiles: Tile[], offset: lm.Vec2d): DragAction[] {
 		const out: DragAction[] = [];
 		if (offset.x != 0 || offset.y != 0) {
-			const tilesPos = [];
+			const offsetTiles = [];
 			for (const tile of tiles) {
 				const pos = lm.vec2dAdd(tile.current, offset);
 				if (!this.isInRange(pos)) {
 					return [];
 				}
-				tilesPos.push({ pos, tile });
+				offsetTiles.push({ pos, tile });
 			}
-			for (const { pos, tile } of tilesPos) {
-				out.push({ tile, pos: pos, isDragTo: false });
+			for (const { pos, tile } of offsetTiles) {
+				out.push({ tile, pos, isDragTo: false });
 				const dragTo = this.tileByOriginCurrent(pos);
 				if (dragTo && !tiles.includes(dragTo)) {
 					let dragToPos: lm.Vec2d;
@@ -163,7 +163,7 @@ export class Matrix {
 					do {
 						dragToPos = dragFromTile.originOrCurrent();
 						isDone = true;
-						for (const { pos, tile } of tilesPos) {
+						for (const { pos, tile } of offsetTiles) {
 							if (lm.vec2dEqual(pos, dragToPos)) {
 								isDone = false;
 								dragFromTile = tile;
