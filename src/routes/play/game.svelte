@@ -6,7 +6,7 @@
 	import * as rd from '$lib/random';
 	import { cachedFn } from '$lib/cache';
 
-	import { DIR_2D_BOTTOM, DIR_2D_LEFT, DIR_2D_RIGHT, DIR_2D_TOP, Matrix } from './matrix';
+	import { DIR_2D_BOTTOM, DIR_2D_RIGHT, Matrix } from './matrix';
 	import type { PuzzleImage } from '$lib/image';
 
 	// Publics
@@ -14,7 +14,6 @@
 	export let tileCount: number;
 	export let seed: string;
 	export let image: PuzzleImage;
-	export let showBorders: boolean;
 
 	export let actionCount: number = 0;
 	export let durationInSec: number = 0;
@@ -181,6 +180,7 @@
 		cols = matrix.cols;
 		window.addEventListener('resize', onResize);
 		return () => {
+			clearInterval(interval);
 			window.removeEventListener('resize', onResize);
 		};
 	});
@@ -195,7 +195,7 @@
 	- z layer priority
 	- tile components for optimizations ?
  -->
-<div class="stack" class:show-borders={showBorders}>
+<div class="stack">
 	<div class="grid" style={matrix.style()} bind:this={slotGrid}>
 		{#each [...matrix.tiles()] as tile, index (tile)}
 			<div
@@ -208,13 +208,19 @@
 	</div>
 	{#each [...matrix.tiles()] as tile (tile)}
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
-		<div
+		<!-- <div
 			class="tile"
 			class:drag-from={tile.isDragFrom()}
 			class:top-ok={tile.isOkWithNext(DIR_2D_TOP)}
 			class:bottom-ok={tile.isOkWithNext(DIR_2D_BOTTOM)}
 			class:left-ok={tile.isOkWithNext(DIR_2D_LEFT)}
 			class:right-ok={tile.isOkWithNext(DIR_2D_RIGHT)}
+			on:mousedown={onMouseDown}
+			style={tile.style()}
+		/> -->
+		<div
+			class="tile"
+			class:drag-from={tile.isDragFrom()}
 			on:mousedown={onMouseDown}
 			style={tile.style()}
 		/>
@@ -257,6 +263,7 @@
 		border: 0 solid #15222e;
 		transition: border 50ms ease-in-out;
 	}
+	/*
 	.stack.show-borders .tile:not(.top-ok)::after {
 		border-top-width: 0.2rem;
 	}
@@ -269,6 +276,7 @@
 	.stack.show-borders .tile:not(.right-ok)::after {
 		border-right-width: 0.2rem;
 	}
+	*/
 
 	.tile:not(.tile.drag-from) {
 		transition: top 200ms ease-in-out, left 200ms ease-in-out;

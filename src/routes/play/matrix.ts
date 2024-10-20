@@ -141,21 +141,26 @@ export class Matrix {
 		}
 	}
 
+	// TODO attempt to fix the 3 over 2 drag inversion.
 	solveDrag(tiles: Tile[], offset: lm.Vec2d): DragAction[] {
 		const out: DragAction[] = [];
 		if (offset.x != 0 || offset.y != 0) {
-			const offsetTiles = [];
+			const draggedTiles = [];
 			for (const tile of tiles) {
-				const pos = lm.vec2dAdd(tile.current, offset);
-				if (!this.isInRange(pos)) {
+				const toPos = lm.vec2dAdd(tile.current, offset);
+				if (!this.isInRange(toPos)) {
 					return [];
 				}
-				offsetTiles.push({ pos, tile });
+				const toTile = this.tileByOriginCurrent(toPos);
+				if (toTile == null) {
+					throw new Error('solveDrag: toTile null');
+				}
+				const isToDragged = tiles.includes(toTile);
+				draggedTiles.push({ tile, toPos, toTile, isToDragged });
 			}
-			for (const { pos, tile } of offsetTiles) {
-				out.push({ tile, pos, isDragTo: false });
-				const dragTo = this.tileByOriginCurrent(pos);
-				if (dragTo && !tiles.includes(dragTo)) {
+			for (const { tile, toPos, toTile, isToDragged } of draggedTiles) {
+				out.push({ tile, pos: toPos, isDragTo: false });
+				if (!isToDragged) {
 					let dragToPos: lm.Vec2d;
 					let isDone: boolean;
 					let dragFromTile = tile;
@@ -163,8 +168,8 @@ export class Matrix {
 					do {
 						dragToPos = dragFromTile.originOrCurrent();
 						isDone = true;
-						for (const { pos, tile } of offsetTiles) {
-							if (lm.vec2dEqual(pos, dragToPos)) {
+						for (const { toPos, tile } of draggedTiles) {
+							if (lm.vec2dEqual(toPos, dragToPos)) {
 								isDone = false;
 								dragFromTile = tile;
 								break;
@@ -176,7 +181,7 @@ export class Matrix {
 						}
 					} while (!isDone);
 					out.push({
-						tile: dragTo,
+						tile: toTile,
 						pos: dragToPos,
 						isDragTo: true
 					});

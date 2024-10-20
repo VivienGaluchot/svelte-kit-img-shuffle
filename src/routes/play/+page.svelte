@@ -22,7 +22,6 @@
 	let cols: number;
 	let isSolved: boolean;
 
-	let game: Game;
 	let showBorders: boolean;
 </script>
 
@@ -50,23 +49,17 @@
 		{:then image}
 			<Section>
 				<Game
-					bind:this={game}
 					bind:rows
 					bind:cols
 					bind:actionCount
 					bind:isSolved
 					bind:durationInSec
-					{showBorders}
 					{tileCount}
 					{seed}
 					{image}
 				/>
 
 				<div class="toolbar">
-					<!-- <div>
-						<input id="boder-checkbox" type="checkbox" bind:checked={showBorders} />
-						<label for="boder-checkbox">Show borders</label>
-					</div> -->
 					<div class="muted">
 						{rows} x {cols}
 					</div>
