@@ -1,4 +1,4 @@
-Demo at https://viviengaluchot.github.io/svelte-kit-img-shuffle
+Hosted at https://viviengaluchot.github.io/svelte-kit-img-shuffle
 
 # How to dev
 
@@ -12,6 +12,8 @@ cd env/picture_slicer_multi-dev
 ```
 
 2. In dev container, install npm dependencies with `npm install`.
+
+3. Init .env `cp .env.example .env`
 
 ## Run dev server
 

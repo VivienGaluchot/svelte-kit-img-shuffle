@@ -160,13 +160,13 @@
 	}
 
 	function onBeforeUnload(event: Event) {
-		if (!isSolved) {
+		if (!isSolved && actionCount > 0) {
 			event.preventDefault();
 		}
 	}
 
 	beforeNavigate(({ cancel }) => {
-		if (!isSolved) {
+		if (!isSolved && actionCount > 0) {
 			if (!window.confirm('Puzzle state not saved, exit anyway?')) {
 				cancel();
 			}

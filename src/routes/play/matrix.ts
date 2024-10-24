@@ -1,7 +1,7 @@
 import * as rd from '$lib/random';
 import * as lm from '$lib/math';
 
-import { Tile, getBoundingBox } from './tile';
+import { Tile } from './tile';
 import { splitInCell, type PuzzleImage } from '../../lib/image';
 
 export const DIR_2D_TOP = { x: 0, y: -1 };
@@ -293,5 +293,19 @@ export class Matrix {
 	cancelDrag(): void {
 		this.matrix.forEach((tile) => tile.cancelDrag());
 		this.dragFrom = null;
+	}
+}
+
+function getBoundingBox(tiles: Tile[]): lm.Rect2d | null {
+	const [first, ...rest] = tiles;
+	if (first) {
+		const rec = { min: first.current, max: first.current };
+		for (const tile of rest) {
+			rec.min = lm.vec2dMin(rec.min, tile.current);
+			rec.max = lm.vec2dMax(rec.max, tile.current);
+		}
+		return rec;
+	} else {
+		return null;
 	}
 }

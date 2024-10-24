@@ -36,15 +36,15 @@ export class Tile {
 		};
 	}
 
-	get rows(): number {
+	private get rows(): number {
 		return this.matrix.rows;
 	}
 
-	get cols(): number {
+	private get cols(): number {
 		return this.matrix.cols;
 	}
 
-	get image(): PuzzleImage {
+	private get image(): PuzzleImage {
 		return this.matrix.image;
 	}
 
@@ -177,19 +177,5 @@ export class Tile {
 				`background-size: ${bgSize.x}px ${bgSize.y}px ; `
 			);
 		}
-	}
-}
-
-export function getBoundingBox(tiles: Tile[]): lm.Rect2d | null {
-	const [first, ...rest] = tiles;
-	if (first) {
-		const rec = { min: first.current, max: first.current };
-		for (const tile of rest) {
-			rec.min = lm.vec2dMin(rec.min, tile.current);
-			rec.max = lm.vec2dMax(rec.max, tile.current);
-		}
-		return rec;
-	} else {
-		return null;
 	}
 }
