@@ -281,8 +281,4 @@
 	.tile:not(.tile.drag-from) {
 		transition: top 200ms ease-in-out, left 200ms ease-in-out;
 	}
-
-	.tile.drag-from {
-		z-index: 1;
-	}
 </style>

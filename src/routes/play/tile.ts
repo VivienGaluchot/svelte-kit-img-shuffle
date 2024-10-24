@@ -11,6 +11,8 @@ export class Tile {
 	// current position in cell index
 	current: lm.Vec2d;
 
+	zIndex: number;
+
 	private drag: {
 		from: null | {
 			// in cell
@@ -34,10 +36,7 @@ export class Tile {
 			from: null,
 			to: null
 		};
-	}
-
-	private get rows(): number {
-		return this.matrix.rows;
+		this.zIndex = 0;
 	}
 
 	private get cols(): number {
@@ -174,7 +173,8 @@ export class Tile {
 				`height: ${currentSlotSize.y}px;` +
 				`background-image: url(${this.image.url}); ` +
 				`background-position: ${bgPos.x}px ${bgPos.y}px; ` +
-				`background-size: ${bgSize.x}px ${bgSize.y}px ; `
+				`background-size: ${bgSize.x}px ${bgSize.y}px ; ` +
+				`z-index: ${this.zIndex} ; `
 			);
 		}
 	}

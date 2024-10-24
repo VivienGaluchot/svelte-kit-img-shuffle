@@ -45,6 +45,7 @@ export class Matrix {
 	cols: number;
 	matrix: Tile[] = [];
 	bounds: lm.Rect2d;
+	zIndex: number;
 
 	constructor(options: MatrixOptions) {
 		this.options = options;
@@ -61,6 +62,7 @@ export class Matrix {
 			min: { x: 0, y: 0 },
 			max: { x: this.cols - 1, y: this.rows - 1 }
 		};
+		this.zIndex = 0;
 	}
 
 	get image(): PuzzleImage {
@@ -224,7 +226,11 @@ export class Matrix {
 				dragActions: [],
 				startOffsetBoundingBox: startOffsetBoundingBox
 			};
-			tiles.map((tile) => tile.setDragFrom(mousePos));
+			this.zIndex += 1;
+			tiles.map((tile) => {
+				tile.setDragFrom(mousePos);
+				tile.zIndex = this.zIndex;
+			});
 		}
 	}
 
