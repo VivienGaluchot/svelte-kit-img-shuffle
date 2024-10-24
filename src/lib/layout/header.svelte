@@ -14,7 +14,6 @@
 	header {
 		display: flex;
 		justify-content: space-between;
-		align-items: baseline;
 	}
 
 	h1 {

@@ -16,13 +16,37 @@
 	const imageResource = gs.getImage(gameSettings);
 	const imagePromise = im.toPuzzleImage(imageResource);
 
+	const shareable = gameSettings.kind == 'static';
+
 	let actionCount: number;
 	let durationInSec: number;
 	let rows: number;
 	let cols: number;
 	let isSolved: boolean;
 
-	let showBorders: boolean;
+	let shareState: undefined | 'success' | 'failed';
+	let resetTimeout: undefined | number;
+	function waitAndReset() {
+		if (resetTimeout) {
+			clearTimeout(resetTimeout);
+		}
+		resetTimeout = setTimeout(() => {
+			shareState = undefined;
+		}, 1000);
+	}
+
+	function share() {
+		navigator.clipboard.writeText($page.url.toString()).then(
+			() => {
+				shareState = 'success';
+				waitAndReset();
+			},
+			() => {
+				shareState = 'failed';
+				waitAndReset();
+			}
+		);
+	}
 </script>
 
 <svelte:head>
@@ -36,10 +60,23 @@
 <Container maxWidth="50rem">
 	<Header>
 		<div class="toolbar">
-			{#await imagePromise then image}
-				<div class="img-name">{image.name}</div>
-			{/await}
-			<div><a class="button" href={paths.base + '/'}>Back</a></div>
+			<div class="img-name">
+				{imageResource.name}
+			</div>
+			{#if shareable}
+				<button
+					class="button share-btn"
+					class:success={shareState == 'success'}
+					class:failed={shareState == 'failed'}
+					on:click={share}
+				>
+					Share link
+					<i class="fa-solid fa-copy" />
+				</button>
+			{/if}
+			<div>
+				<a class="button" href={paths.base + '/'}>Back</a>
+			</div>
 		</div>
 	</Header>
 
@@ -60,13 +97,15 @@
 				/>
 
 				<div class="toolbar">
-					<div class="muted">
+					<div class="muted" style="flex:1;">
 						{rows} x {cols}
 					</div>
-					{#if isSolved}
-						<div>Solved ✨ <a href={paths.base + '/'}>Play again</a></div>
-					{/if}
-					<div class="muted">
+					<div>
+						{#if isSolved}
+							Solved ✨
+						{/if}
+					</div>
+					<div class="muted" style="flex:1; text-align: right;">
 						{actionCount} move{#if actionCount > 1}s{/if} | {Math.floor(durationInSec / 60)
 							.toString()
 							.padStart(2, '0')}:{(durationInSec % 60).toString().padStart(2, '0')}
@@ -87,7 +126,7 @@
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		max-width: 30rem;
-		direction: rtl;
+		padding: 0.5rem;
 	}
 
 	.muted {
@@ -99,6 +138,36 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		gap: 2rem;
+		gap: 1rem;
+	}
+
+	.share-btn {
+		transition: color 200ms ease-in-out;
+	}
+
+	.success {
+		color: rgb(130, 248, 130);
+		transition: unset;
+	}
+
+	.failed {
+		color: rgb(248, 130, 130);
+		transition: unset;
+		animation: wiggle 0.1s;
+	}
+
+	@keyframes wiggle {
+		0% {
+			transform: rotate(0deg);
+		}
+		40% {
+			transform: rotate(5deg);
+		}
+		80% {
+			transform: rotate(-5deg);
+		}
+		100% {
+			transform: rotate(0deg);
+		}
 	}
 </style>
