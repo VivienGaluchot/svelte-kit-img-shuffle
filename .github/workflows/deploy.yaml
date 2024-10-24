@@ -36,9 +36,9 @@ jobs:
         id: pages
         uses: actions/configure-pages@v5
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --include=dev
       - name: Build
-        run: npx --no-install build
+        run: npm run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
