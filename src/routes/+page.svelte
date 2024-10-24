@@ -48,9 +48,11 @@
 
 		<Section>
 			<div class="flex-h">
-				<div>Play with custom image</div>
+				<div>Custom images</div>
 				<div>
-					<button class="button" on:click={() => fileInput.click()}>+</button>
+					<button class="button" on:click={() => fileInput.click()}>
+						<i class="fa-solid fa-arrow-up-from-bracket" />
+					</button>
 					<input
 						bind:this={fileInput}
 						hidden
