@@ -1,6 +1,6 @@
 {
 	"name": "picture_slicer_multi",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"scripts": {
 		"dev": "vite dev --host 0.0.0.0",
 		"build": "vite build",

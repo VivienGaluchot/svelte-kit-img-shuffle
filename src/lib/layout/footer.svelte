@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { PUBLIC_VERSION } from '$env/static/public';
 </script>
 
 <footer>
+	{PUBLIC_VERSION}
 	<a
 		class="button"
 		href="https://github.com/VivienGaluchot/svelte-kit-img-shuffle/issues"
