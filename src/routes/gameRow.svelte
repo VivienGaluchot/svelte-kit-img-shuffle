@@ -9,30 +9,37 @@
 		return url.toString();
 	}
 
-	export let images: gs.ImageSettings[];
+	export let image: gs.ImageSettings;
+	export let onDelete: ((image: gs.ImageSettings) => Promise<void>) | undefined = undefined;
 </script>
 
-{#each images as imageSetting}
+<div class="flex-h">
 	<div class="flex-h row">
 		<div class="flex-h g-sm">
-			<div class="icon">
-				<div class="icon-bg" style="background-image: url({gs.getImage(imageSetting).url});" />
-			</div>
-			<div class="img-name">{gs.getImage(imageSetting).name}</div>
+			{#await gs.getImage(image) then image}
+				<div class="icon">
+					<div class="icon-bg" style="background-image: url({image.url});" />
+				</div>
+				<div class="img-name">{image.name}</div>
+			{/await}
 		</div>
 		<div class="flex-h g-sm">
-			<a class="button" href={getUrl(40, imageSetting)}>Easy</a>
-			<a class="button" href={getUrl(80, imageSetting)}>Medium</a>
-			<a class="button" href={getUrl(120, imageSetting)}>Hard</a>
+			<a class="button" href={getUrl(40, image)}>Easy</a>
+			<a class="button" href={getUrl(80, image)}>Medium</a>
+			<a class="button" href={getUrl(120, image)}>Hard</a>
 		</div>
 	</div>
-{/each}
+	{#if onDelete}
+		<button class="button" on:click={() => onDelete(image)}><i class="fa-solid fa-trash" /></button>
+	{/if}
+</div>
 
 <style>
 	.row {
 		background-color: rgba(255, 255, 255, 0.02);
 		border-radius: 0.2rem;
 		padding-left: 0.5rem;
+		flex-grow: 1;
 	}
 
 	.flex-h {
@@ -40,9 +47,6 @@
 		flex-wrap: wrap;
 		justify-content: space-between;
 		align-items: center;
-	}
-
-	.flex-h {
 		gap: 0 1rem;
 	}
 

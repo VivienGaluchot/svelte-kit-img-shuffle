@@ -1,5 +1,4 @@
 <script lang="ts">
-	import * as paths from '$app/paths';
 </script>
 
 <svelte:head>

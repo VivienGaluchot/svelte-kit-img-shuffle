@@ -1,35 +1,53 @@
 <script lang="ts">
-	import Section from '$lib/layout/section.svelte';
+	import { liveQuery } from 'dexie';
 	import * as im from '$lib/image';
 	import * as gs from '$lib/gameSetting';
-	import GameList from './gameList.svelte';
+	import { db } from '$lib/db';
+	import GameRow from './gameRow.svelte';
 	import Header from '$lib/layout/header.svelte';
 	import Footer from '$lib/layout/footer.svelte';
 	import Container from '$lib/layout/container.svelte';
 	import Content from '$lib/layout/content.svelte';
-
-	let customImages: gs.ImageSettings[] = [];
+	import Section from '$lib/layout/section.svelte';
 
 	const staticImageSettings: gs.ImageSettings[] = [];
 	for (const key of Object.keys(im.staticImages)) {
 		staticImageSettings.push({ kind: 'static', key });
 	}
 
+	$: customImages = liveQuery(async () => {
+		console.log('liveQuery');
+		const customImages: gs.ImageSettings[] = [];
+		try {
+			// TODO: optimize by not making more db request in `GameRow` ?
+			for (const image of await db.customImages.toArray()) {
+				customImages.push({
+					kind: 'custom',
+					id: image.id
+				});
+			}
+		} catch (err) {
+			console.error('operation failed', err);
+		}
+		return customImages;
+	});
+
 	let fileInput: HTMLInputElement;
 	let fileInputValue: FileList | null = null;
 	$: if (fileInputValue) {
 		const file = fileInputValue[0];
 		if (file) {
-			// TODO append when persistent
-			customImages = [
-				{
-					kind: 'custom',
-					image: {
-						name: file.name,
-						url: URL.createObjectURL(file)
-					}
-				}
-			];
+			add(file.name, file);
+		}
+	}
+
+	async function add(name: string, blob: Blob) {
+		await db.customImages.add({ name, blob });
+	}
+
+	async function onDelete(image: gs.ImageSettings): Promise<void> {
+		if (image.kind == 'custom') {
+			await db.customImages.delete(image.id);
 		}
 	}
 </script>
@@ -43,7 +61,9 @@
 	<Content>
 		<Section>
 			Choose an image
-			<GameList images={staticImageSettings} />
+			{#each staticImageSettings as image (image)}
+				<GameRow {image} />
+			{/each}
 		</Section>
 
 		<Section>
@@ -62,7 +82,11 @@
 					/>
 				</div>
 			</div>
-			<GameList images={customImages} />
+			{#if $customImages}
+				{#each $customImages as image (image)}
+					<GameRow {image} {onDelete} />
+				{/each}
+			{/if}
 		</Section>
 	</Content>
 	<Footer />

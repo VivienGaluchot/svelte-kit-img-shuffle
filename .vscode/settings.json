@@ -15,5 +15,8 @@
 	"svelte.enable-ts-plugin": true,
 	"[typescript]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
-	}
+	},
+	"cSpell.words": [
+		"Dexie"
+	]
 }

@@ -1,4 +1,5 @@
 import * as im from '$lib/image';
+import { db } from '$lib/db';
 
 export type ImageSettings =
 	| {
@@ -10,8 +11,8 @@ export type ImageSettings =
 	| {
 			// play with user provided image
 			kind: 'custom';
-			// image resource
-			image: im.ImageResource;
+			// `CustomImage` id in local db
+			id: number;
 	  };
 
 export type GameSettings = ImageSettings & {
@@ -28,7 +29,7 @@ export function encodeSettingToUrl(url: URL, settings: GameSettings): void {
 		url.searchParams.set('i', encodeURIComponent(settings.key));
 	}
 	if (settings.kind == 'custom') {
-		url.searchParams.set('c', encodeURIComponent(JSON.stringify(settings.image)));
+		url.searchParams.set('c', encodeURIComponent(settings.id));
 	}
 }
 
@@ -50,14 +51,14 @@ export function decodeGameSettingsFromUrl(url: URL): GameSettings {
 	if (i) {
 		return { kind: 'static', tileCount, seed, key: i };
 	} else if (c) {
-		const image: im.ImageResource = JSON.parse(decodeURIComponent(c));
-		return { kind: 'custom', tileCount, seed, image };
+		const id: number = parseInt(c);
+		return { kind: 'custom', tileCount, seed, id };
 	} else {
 		throw new Error("missing 'c' or 's' url parameter");
 	}
 }
 
-export function getImage(settings: ImageSettings): im.ImageResource {
+export async function getImage(settings: ImageSettings): Promise<im.ImageResource> {
 	if (settings.kind == 'static') {
 		const image = im.staticImages[settings.key];
 		if (!image) {
@@ -65,6 +66,13 @@ export function getImage(settings: ImageSettings): im.ImageResource {
 		}
 		return image;
 	} else {
-		return settings.image;
+		const image = await db.customImages.get(settings.id);
+		if (!image) {
+			throw new Error(`unknown image key '${settings.id}'`);
+		}
+		return {
+			name: image.name,
+			url: URL.createObjectURL(image.blob).toString()
+		};
 	}
 }

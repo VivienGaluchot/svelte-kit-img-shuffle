@@ -14,7 +14,7 @@
 	const tileCount = gameSettings.tileCount;
 	const seed = gameSettings.seed;
 	const imageResource = gs.getImage(gameSettings);
-	const imagePromise = im.toPuzzleImage(imageResource);
+	const imagePromise = imageResource.then(im.toPuzzleImage);
 
 	const shareable = gameSettings.kind == 'static';
 
@@ -61,7 +61,11 @@
 	<Header>
 		<div class="toolbar">
 			<div class="img-name">
-				{imageResource.name}
+				{#await imageResource}
+					...
+				{:then imageResource}
+					{imageResource.name}
+				{/await}
 			</div>
 			{#if shareable}
 				<button
