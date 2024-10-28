@@ -1,21 +1,23 @@
 import * as im from '$lib/image';
 import { db } from '$lib/db';
 
-export type ImageSettings =
-	| {
-			// play with static image from `im.staticImages`
-			kind: 'static';
-			// static image key
-			key: string;
-	  }
-	| {
-			// play with user provided image
-			kind: 'custom';
-			// `CustomImage` id in local db
-			id: number;
-	  };
+export interface StaticImageSetting {
+	// play with static image from `im.staticImages`
+	kind: 'static';
+	// static image key
+	key: string;
+}
 
-export type GameSettings = ImageSettings & {
+export interface CustomImageSetting {
+	// play with user provided image
+	kind: 'custom';
+	// `CustomImage` id in local db
+	id: number;
+}
+
+export type ImageSetting = StaticImageSetting | CustomImageSetting;
+
+export type GameSettings = ImageSetting & {
 	// number of tile for the game
 	tileCount: number;
 	// seed
@@ -58,7 +60,7 @@ export function decodeGameSettingsFromUrl(url: URL): GameSettings {
 	}
 }
 
-export async function getImage(settings: ImageSettings): Promise<im.ImageResource> {
+export async function getImage(settings: ImageSetting): Promise<im.ImageResource> {
 	if (settings.kind == 'static') {
 		const image = im.staticImages[settings.key];
 		if (!image) {

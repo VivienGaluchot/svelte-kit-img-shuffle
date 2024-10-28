@@ -3,14 +3,14 @@
 	import * as gs from '$lib/gameSetting';
 	import * as rd from '$lib/random';
 
-	function getUrl(tileCount: number, image: gs.ImageSettings) {
+	function getUrl(tileCount: number, image: gs.ImageSetting) {
 		const url = new URL(`${paths.base}/play`, window.location.origin);
 		gs.encodeSettingToUrl(url, { tileCount, seed: rd.getRandomString(Math.random, 6), ...image });
 		return url.toString();
 	}
 
-	export let image: gs.ImageSettings;
-	export let onDelete: ((image: gs.ImageSettings) => Promise<void>) | undefined = undefined;
+	export let image: gs.ImageSetting;
+	export let onDelete: ((image: gs.ImageSetting) => Promise<void>) | undefined = undefined;
 </script>
 
 <div class="flex-h">

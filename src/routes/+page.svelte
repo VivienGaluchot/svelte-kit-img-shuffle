@@ -10,17 +10,16 @@
 	import Content from '$lib/layout/content.svelte';
 	import Section from '$lib/layout/section.svelte';
 
-	const staticImageSettings: gs.ImageSettings[] = [];
+	const staticImageSettings: gs.StaticImageSetting[] = [];
 	for (const key of Object.keys(im.staticImages)) {
 		staticImageSettings.push({ kind: 'static', key });
 	}
 
 	$: customImages = liveQuery(async () => {
-		console.log('liveQuery');
-		const customImages: gs.ImageSettings[] = [];
+		const customImages: gs.CustomImageSetting[] = [];
 		try {
 			// TODO: optimize by not making more db request in `GameRow` ?
-			for (const image of await db.customImages.toArray()) {
+			for (const image of await db.customImages.toCollection().reverse().toArray()) {
 				customImages.push({
 					kind: 'custom',
 					id: image.id
@@ -45,7 +44,7 @@
 		await db.customImages.add({ name, blob });
 	}
 
-	async function onDelete(image: gs.ImageSettings): Promise<void> {
+	async function onDelete(image: gs.ImageSetting): Promise<void> {
 		if (image.kind == 'custom') {
 			await db.customImages.delete(image.id);
 		}
@@ -61,7 +60,7 @@
 	<Content>
 		<Section>
 			Choose an image
-			{#each staticImageSettings as image (image)}
+			{#each staticImageSettings as image (image.key)}
 				<GameRow {image} />
 			{/each}
 		</Section>
@@ -83,7 +82,7 @@
 				</div>
 			</div>
 			{#if $customImages}
-				{#each $customImages as image (image)}
+				{#each $customImages as image (image.id)}
 					<GameRow {image} {onDelete} />
 				{/each}
 			{/if}
