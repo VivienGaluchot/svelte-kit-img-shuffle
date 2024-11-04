@@ -16,7 +16,6 @@
 	export let image: PuzzleImage;
 
 	export let actionCount: number = 0;
-	export let durationInSec: number = 0;
 	export let rows: number = 0;
 	export let cols: number = 0;
 
@@ -142,16 +141,6 @@
 	});
 	matrix.shuffle(rd.getSfc32(rd.getSeed128(seed)));
 
-	const interval = setInterval(() => {
-		if (!document.hidden) {
-			durationInSec += 1;
-		}
-	}, 1000);
-
-	$: if (isSolved) {
-		clearInterval(interval);
-	}
-
 	function onResize() {
 		getGridSize.clear();
 		getSlotPos.clear();
@@ -180,7 +169,6 @@
 		cols = matrix.cols;
 		window.addEventListener('resize', onResize);
 		return () => {
-			clearInterval(interval);
 			window.removeEventListener('resize', onResize);
 		};
 	});

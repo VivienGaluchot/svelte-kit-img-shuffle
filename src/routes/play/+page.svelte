@@ -9,20 +9,23 @@
 	import Header from '$lib/layout/header.svelte';
 	import Section from '$lib/layout/section.svelte';
 	import Game from './game.svelte';
+	import { onMount } from 'svelte';
+	import { db } from '$lib/db';
 
 	const gameSettings = gs.decodeGameSettingsFromUrl($page.url);
 	const tileCount = gameSettings.tileCount;
 	const seed = gameSettings.seed;
-	const imageResource = gs.getImage(gameSettings);
+	const imageResource = gs.getImage(gameSettings.image);
 	const imagePromise = imageResource.then(im.toPuzzleImage);
 
-	const shareable = gameSettings.kind == 'static';
-
 	let actionCount: number;
-	let durationInSec: number;
 	let rows: number;
 	let cols: number;
 	let isSolved: boolean;
+
+	// share button
+
+	const isShareable = gameSettings.image.kind == 'static';
 
 	let shareState: undefined | 'success' | 'failed';
 	let resetTimeout: undefined | number;
@@ -47,6 +50,44 @@
 			}
 		);
 	}
+
+	// delete button
+
+	const isCustom = gameSettings.image.kind == 'custom';
+
+	async function deleteImage(): Promise<void> {
+		if (gameSettings.image.kind == 'custom') {
+			if (window.confirm('Do you confirm local image deletion?')) {
+				await db.customImages.delete(gameSettings.image.id);
+			}
+		}
+	}
+
+	// duration
+
+	let durationInSec = 0;
+
+	const interval = setInterval(() => {
+		if (!document.hidden) {
+			durationInSec += 1;
+		}
+	}, 1000);
+
+	$: if (isSolved) {
+		clearInterval(interval);
+	}
+
+	onMount(() => {
+		return () => {
+			clearInterval(interval);
+		};
+	});
+
+	// on solved
+
+	$: if (isSolved) {
+		db.gameCompletes.add({ settings: gameSettings, actionCount, durationInSec });
+	}
 </script>
 
 <svelte:head>
@@ -67,7 +108,7 @@
 					{imageResource.name}
 				{/await}
 			</div>
-			{#if shareable}
+			{#if isShareable}
 				<button
 					class="button share-btn"
 					class:success={shareState == 'success'}
@@ -76,6 +117,11 @@
 				>
 					Share link
 					<i class="fa-solid fa-copy" />
+				</button>
+			{/if}
+			{#if isCustom}
+				<button class="button" on:click={deleteImage}>
+					<i class="fa-solid fa-trash" />
 				</button>
 			{/if}
 			<div>
@@ -89,16 +135,7 @@
 			<Section>Loading image...</Section>
 		{:then image}
 			<Section>
-				<Game
-					bind:rows
-					bind:cols
-					bind:actionCount
-					bind:isSolved
-					bind:durationInSec
-					{tileCount}
-					{seed}
-					{image}
-				/>
+				<Game bind:rows bind:cols bind:actionCount bind:isSolved {tileCount} {seed} {image} />
 
 				<div class="toolbar">
 					<div class="muted" style="flex:1;">

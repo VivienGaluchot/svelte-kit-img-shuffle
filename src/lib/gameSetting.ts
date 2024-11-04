@@ -17,21 +17,23 @@ export interface CustomImageSetting {
 
 export type ImageSetting = StaticImageSetting | CustomImageSetting;
 
-export type GameSettings = ImageSetting & {
+export interface GameSettings {
 	// number of tile for the game
 	tileCount: number;
 	// seed
 	seed: string;
-};
+	// image setting
+	image: ImageSetting;
+}
 
 export function encodeSettingToUrl(url: URL, settings: GameSettings): void {
 	url.searchParams.set('n', `${settings.tileCount}`);
 	url.searchParams.set('s', `${encodeURIComponent(settings.seed)}`);
-	if (settings.kind == 'static') {
-		url.searchParams.set('i', encodeURIComponent(settings.key));
+	if (settings.image.kind == 'static') {
+		url.searchParams.set('i', encodeURIComponent(settings.image.key));
 	}
-	if (settings.kind == 'custom') {
-		url.searchParams.set('c', encodeURIComponent(settings.id));
+	if (settings.image.kind == 'custom') {
+		url.searchParams.set('c', encodeURIComponent(settings.image.id));
 	}
 }
 
@@ -51,10 +53,10 @@ export function decodeGameSettingsFromUrl(url: URL): GameSettings {
 	const i = url.searchParams.get('i');
 	const c = url.searchParams.get('c');
 	if (i) {
-		return { kind: 'static', tileCount, seed, key: i };
+		return { image: { kind: 'static', key: i }, tileCount, seed };
 	} else if (c) {
 		const id: number = parseInt(c);
-		return { kind: 'custom', tileCount, seed, id };
+		return { image: { kind: 'custom', id }, tileCount, seed };
 	} else {
 		throw new Error("missing 'c' or 's' url parameter");
 	}
