@@ -2,16 +2,33 @@
 	import { liveQuery } from 'dexie';
 	import * as im from '$lib/image';
 	import * as gs from '$lib/gameSetting';
-	import { db } from '$lib/db';
+	import * as db from '$lib/db';
 	import GameCard from './gameCard.svelte';
 	import Header from '$lib/layout/header.svelte';
 	import Footer from '$lib/layout/footer.svelte';
 	import Container from '$lib/layout/container.svelte';
 	import Content from '$lib/layout/content.svelte';
 	import Section from '$lib/layout/section.svelte';
-	import Game from './play/game.svelte';
 
+	// difficulty
+
+	let initialDifficulty = db.ldb.getDifficulty();
+	let difficulty: db.Difficulty;
+
+	$: db.ldb.setDifficulty(difficulty);
 	let tileCount: number;
+
+	$: switch (difficulty) {
+		case 'easy':
+			tileCount = 40;
+			break;
+		case 'medium':
+			tileCount = 80;
+			break;
+		case 'hard':
+			tileCount = 120;
+			break;
+	}
 
 	// static images
 
@@ -25,7 +42,7 @@
 	$: customImages = liveQuery(async () => {
 		const customImages: gs.CustomImageSetting[] = [];
 		try {
-			const keys = await db.customImages.toCollection().reverse().primaryKeys();
+			const keys = await db.idb.customImages.toCollection().reverse().primaryKeys();
 			for (const key of keys) {
 				customImages.push({ kind: 'custom', id: key });
 			}
@@ -45,7 +62,7 @@
 	}
 
 	async function add(name: string, blob: Blob) {
-		await db.customImages.add({ name, blob });
+		await db.idb.customImages.add({ name, blob });
 	}
 </script>
 
@@ -57,10 +74,10 @@
 	<Header>
 		<div class="flex-h">
 			Difficulty
-			<select bind:value={tileCount}>
-				<option value={40}>Easy</option>
-				<option value={80}>Medium</option>
-				<option value={120}>Hard</option>
+			<select bind:value={difficulty}>
+				<option value={'easy'} selected={initialDifficulty == 'easy'}>Easy</option>
+				<option value={'medium'} selected={initialDifficulty == 'medium'}>Medium</option>
+				<option value={'hard'} selected={initialDifficulty == 'hard'}>Hard</option>
 			</select>
 		</div>
 	</Header>
@@ -78,7 +95,7 @@
 			<div class="flex-h">
 				<div>Private images</div>
 				<div>
-					<button class="button" on:click={() => fileInput.click()}>
+					<button on:click={() => fileInput.click()}>
 						<i class="fa-solid fa-arrow-up-from-bracket" />
 					</button>
 					<input

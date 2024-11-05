@@ -1,5 +1,5 @@
 import * as im from '$lib/image';
-import { db } from '$lib/db';
+import { idb } from '$lib/db';
 
 export interface StaticImageSetting {
 	// play with static image from `im.staticImages`
@@ -70,7 +70,7 @@ export async function getImage(settings: ImageSetting): Promise<im.ImageResource
 		}
 		return image;
 	} else {
-		const image = await db.customImages.get(settings.id);
+		const image = await idb.customImages.get(settings.id);
 		if (!image) {
 			throw new Error(`unknown image key '${settings.id}'`);
 		}

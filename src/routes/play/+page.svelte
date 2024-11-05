@@ -10,7 +10,7 @@
 	import Section from '$lib/layout/section.svelte';
 	import Game from './game.svelte';
 	import { onMount } from 'svelte';
-	import { db } from '$lib/db';
+	import { idb } from '$lib/db';
 
 	const gameSettings = gs.decodeGameSettingsFromUrl($page.url);
 	const tileCount = gameSettings.tileCount;
@@ -58,7 +58,7 @@
 	async function deleteImage(): Promise<void> {
 		if (gameSettings.image.kind == 'custom') {
 			if (window.confirm('Do you confirm local image deletion?')) {
-				await db.customImages.delete(gameSettings.image.id);
+				await idb.customImages.delete(gameSettings.image.id);
 			}
 		}
 	}
@@ -86,7 +86,7 @@
 	// on solved
 
 	$: if (isSolved) {
-		db.gameCompletes.add({ settings: gameSettings, actionCount, durationInSec });
+		idb.gameCompletes.add({ settings: gameSettings, actionCount, durationInSec });
 	}
 </script>
 
@@ -110,7 +110,7 @@
 			</div>
 			{#if isShareable}
 				<button
-					class="button share-btn"
+					class="share-btn"
 					class:success={shareState == 'success'}
 					class:failed={shareState == 'failed'}
 					on:click={share}
@@ -120,7 +120,7 @@
 				</button>
 			{/if}
 			{#if isCustom}
-				<button class="button" on:click={deleteImage}>
+				<button on:click={deleteImage}>
 					<i class="fa-solid fa-trash" />
 				</button>
 			{/if}

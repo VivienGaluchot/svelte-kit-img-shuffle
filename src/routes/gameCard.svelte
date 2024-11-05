@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as paths from '$app/paths';
-	import { db } from '$lib/db';
+	import { idb } from '$lib/db';
 	import * as gs from '$lib/gameSetting';
 	import * as rd from '$lib/random';
 	import { liveQuery } from 'dexie';
@@ -19,14 +19,14 @@
 			let collection;
 			switch (image.kind) {
 				case 'static':
-					collection = db.gameCompletes.where({
+					collection = idb.gameCompletes.where({
 						'settings.image.kind': image.kind,
 						'settings.image.key': image.key,
 						'settings.tileCount': tileCount
 					});
 					break;
 				case 'custom':
-					collection = db.gameCompletes.where({
+					collection = idb.gameCompletes.where({
 						'settings.image.kind': image.kind,
 						'settings.image.id': image.id,
 						'settings.tileCount': tileCount
@@ -60,14 +60,15 @@
 		flex-direction: column;
 		gap: 0.5rem;
 		align-items: start;
+		transition: 100ms;
 	}
 
-	.card:hover .icon-bg {
-		transform: scale(1.1);
+	.card:hover {
+		text-decoration: underline;
 	}
 
-	.card:active .icon-bg {
-		transform: scale(1.2);
+	.card:active {
+		transform: scale(0.9);
 	}
 
 	.icon {

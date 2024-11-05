@@ -55,28 +55,44 @@
 		color: white;
 	}
 
-	button {
+	button,
+	.button,
+	select,
+	option {
 		font-size: 1rem;
-	}
-
-	.button {
-		font-family: 'Open Sans', sans-serif;
-		background-color: transparent;
+		cursor: pointer;
+		font-weight: lighter;
 		color: white;
 		padding: 0.5rem;
 		border-radius: 0.2rem;
 		text-decoration: none;
+		font-family: 'Open Sans', sans-serif;
 		border: none;
-		font-weight: lighter;
+		background-color: transparent;
+		transition: 100ms;
+		outline: 0 solid rgba(255, 255, 255, 0.15);
 	}
 
-	.button:hover {
+	select {
 		background-color: rgba(255, 255, 255, 0.1);
-		cursor: pointer;
-		cursor: pointer;
 	}
 
-	.button:active {
-		transform: scale(0.9);
+	option {
+		background-color: white;
+		color: black;
+	}
+
+	button:hover,
+	.button:hover,
+	option:hover,
+	select:hover {
+		background-color: rgba(255, 255, 255, 0.1);
+		outline: 0.1rem solid rgba(255, 255, 255, 0.15);
+	}
+
+	button:active,
+	.button:active,
+	select:active {
+		outline: 0.2rem solid rgba(255, 255, 255, 0.15);
 	}
 </style>

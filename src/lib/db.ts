@@ -1,8 +1,9 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type { GameSettings } from './gameSetting';
-import { PUBLIC_VERSION } from '$env/static/public';
 
-Dexie.debug = PUBLIC_VERSION == 'dev';
+// Indexed db
+
+Dexie.debug = false;
 
 export interface CustomImage {
 	id: number;
@@ -17,17 +18,41 @@ export interface GameComplete {
 	durationInSec: number;
 }
 
-export const db = new Dexie('pictureSlicer') as Dexie & {
+export const idb = new Dexie('pictureSlicer') as Dexie & {
 	customImages: EntityTable<CustomImage, 'id'>;
 } & {
 	gameCompletes: EntityTable<GameComplete, 'id'>;
 };
 
-db.version(1).stores({
+idb.version(1).stores({
 	customImages: '++id, name'
 });
 
-db.version(2).stores({
+idb.version(2).stores({
 	gameCompletes:
 		'++id, settings.image.kind, settings.image.id, settings.image.key, settings.tileCount'
 });
+
+// Local db
+
+export type Difficulty = 'easy' | 'medium' | 'hard';
+
+const DifficultyKey = 'difficulty_v1';
+
+export const ldb = {
+	getDifficulty(): Difficulty {
+		switch (window.localStorage.getItem(DifficultyKey)) {
+			case 'easy':
+			default:
+				return 'easy';
+			case 'medium':
+				return 'medium';
+			case 'hard':
+				return 'hard';
+		}
+	},
+	setDifficulty(difficulty: Difficulty) {
+		console.log(difficulty);
+		window.localStorage.setItem(DifficultyKey, difficulty);
+	}
+};
