@@ -70,7 +70,7 @@
 	<title>Picture slicer</title>
 </svelte:head>
 
-<Container maxWidth="35rem">
+<Container maxWidth="40rem">
 	<Header>
 		<div class="flex-h">
 			Difficulty
@@ -131,7 +131,7 @@
 
 	.grid {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+		grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
 		gap: 1rem;
 	}
 </style>

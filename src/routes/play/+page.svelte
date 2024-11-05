@@ -51,18 +51,6 @@
 		);
 	}
 
-	// delete button
-
-	const isCustom = gameSettings.image.kind == 'custom';
-
-	async function deleteImage(): Promise<void> {
-		if (gameSettings.image.kind == 'custom') {
-			if (window.confirm('Do you confirm local image deletion?')) {
-				await idb.customImages.delete(gameSettings.image.id);
-			}
-		}
-	}
-
 	// duration
 
 	let durationInSec = 0;
@@ -117,11 +105,6 @@
 				>
 					Share link
 					<i class="fa-solid fa-copy" />
-				</button>
-			{/if}
-			{#if isCustom}
-				<button on:click={deleteImage}>
-					<i class="fa-solid fa-trash" />
 				</button>
 			{/if}
 			<div>
