@@ -83,7 +83,7 @@
 	</Header>
 	<Content>
 		<Section>
-			Game images
+			Official images
 			<div class="grid">
 				{#each staticImageSettings as image (image.key)}
 					<GameCard {image} {tileCount} />
@@ -93,7 +93,7 @@
 
 		<Section>
 			<div class="flex-h">
-				<div>Private images</div>
+				<div>Custom images</div>
 				<div>
 					<button on:click={() => fileInput.click()}>
 						<i class="fa-solid fa-arrow-up-from-bracket" />
@@ -131,7 +131,7 @@
 
 	.grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
 		gap: 1rem;
 	}
 </style>

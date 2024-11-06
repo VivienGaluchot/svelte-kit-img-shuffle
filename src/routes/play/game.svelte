@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { beforeNavigate } from '$app/navigation';
 	import { onMount } from 'svelte';
-
 	import * as lm from '$lib/math';
 	import * as rd from '$lib/random';
 	import { cachedFn } from '$lib/cache';
-
-	import { DIR_2D_BOTTOM, DIR_2D_RIGHT, Matrix } from './matrix';
 	import type { PuzzleImage } from '$lib/image';
+	import { DIR_2D_BOTTOM, DIR_2D_RIGHT, Matrix } from './matrix';
 
 	// Publics
 

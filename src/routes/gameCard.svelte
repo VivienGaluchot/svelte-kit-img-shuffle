@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as paths from '$app/paths';
+	import Confirm from '$lib/cmp/confirm.svelte';
 	import { idb } from '$lib/db';
 	import * as gs from '$lib/gameSetting';
 	import * as rd from '$lib/random';
@@ -41,12 +42,13 @@
 	});
 
 	// delete button
+	let delConfirm: Confirm;
 
 	const isCustom = image.kind == 'custom';
 
 	async function deleteImage(): Promise<void> {
 		if (image.kind == 'custom') {
-			if (window.confirm('Do you confirm local image deletion?')) {
+			if (await delConfirm.ask()) {
 				await idb.customImages.delete(image.id);
 			}
 		}
@@ -70,6 +72,10 @@
 		{/await}
 	</a>
 	{#if isCustom}
+		<Confirm bind:this={delConfirm}>
+			Please confirm image deletion.<br />
+			Operation cannot be undone.
+		</Confirm>
 		<button class="del-btn" on:click={deleteImage}><i class="fa-solid fa-trash" /></button>
 	{/if}
 </div>

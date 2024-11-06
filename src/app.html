@@ -30,6 +30,10 @@
 <style>
 	:root {
 		font-family: 'Open Sans', sans-serif;
+		--bg-r: 255;
+		--bg-g: 255;
+		--bg-b: 255;
+		line-height: 1.5rem;
 	}
 
 	html {
@@ -63,18 +67,15 @@
 		cursor: pointer;
 		font-weight: lighter;
 		color: white;
-		padding: 0.5rem;
+		padding: 0.3rem;
 		border-radius: 0.2rem;
 		text-decoration: none;
 		font-family: 'Open Sans', sans-serif;
-		border: none;
-		background-color: transparent;
-		transition: 100ms;
-		outline: 0 solid rgba(255, 255, 255, 0.1);
-	}
-
-	select {
-		background-color: rgba(255, 255, 255, 0.1);
+		border: 0.2rem solid transparent;
+		box-sizing: border-box;
+		background-color: rgba(var(--bg-r), var(--bg-g), var(--bg-b), 0.1);
+		outline: 0 solid rgba(var(--bg-r), var(--bg-g), var(--bg-b), 0.03);
+		transition: border 100ms;
 	}
 
 	option {
@@ -85,15 +86,40 @@
 	button:hover,
 	.button:hover,
 	option:hover,
-	select:hover {
-		background-color: rgba(255, 255, 255, 0.1);
-		outline: 0.1rem solid rgba(255, 255, 255, 0.1);
+	select:hover,
+	button:focus,
+	.button:focus,
+	option:focus,
+	select:focus {
+		border-color: rgba(var(--bg-r), var(--bg-g), var(--bg-b), 0.1);
 	}
 
 	button:active,
 	.button:active,
 	select:active {
-		background-color: rgba(255, 255, 255, 0.1);
-		outline: 0.2rem solid rgba(255, 255, 255, 0.1);
+		animation-duration: 100ms;
+		animation-name: blip;
+		animation-fill-mode: forwards;
+	}
+
+	.success {
+		color: rgb(130, 248, 130);
+		--bg-r: 130;
+		--bg-g: 248;
+		--bg-b: 130;
+	}
+
+	.danger,
+	.failed {
+		color: rgb(248, 130, 130);
+		--bg-r: 248;
+		--bg-g: 130;
+		--bg-b: 130;
+	}
+
+	@keyframes blip {
+		to {
+			outline-width: 0.5rem;
+		}
 	}
 </style>

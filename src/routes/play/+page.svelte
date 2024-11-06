@@ -1,16 +1,16 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import * as paths from '$app/paths';
 	import { page } from '$app/stores';
 	import * as im from '$lib/image';
 	import * as gs from '$lib/gameSetting';
+	import { idb } from '$lib/db';
 	import Container from '$lib/layout/container.svelte';
 	import Content from '$lib/layout/content.svelte';
 	import Footer from '$lib/layout/footer.svelte';
 	import Header from '$lib/layout/header.svelte';
 	import Section from '$lib/layout/section.svelte';
 	import Game from './game.svelte';
-	import { onMount } from 'svelte';
-	import { idb } from '$lib/db';
 
 	const gameSettings = gs.decodeGameSettingsFromUrl($page.url);
 	const tileCount = gameSettings.tileCount;
