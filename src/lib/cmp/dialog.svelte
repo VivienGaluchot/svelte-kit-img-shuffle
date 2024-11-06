@@ -2,7 +2,6 @@
 	export let onClose: (() => void) | undefined = undefined;
 
 	let dialog: HTMLDialogElement;
-	let clickTarget: HTMLDivElement;
 
 	export function showModal() {
 		dialog.showModal();

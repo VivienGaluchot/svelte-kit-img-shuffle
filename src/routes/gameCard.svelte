@@ -41,9 +41,9 @@
 		return false;
 	});
 
-	// delete button
-	let delConfirm: Confirm;
+	// delete
 
+	let delConfirm: Confirm;
 	const isCustom = image.kind == 'custom';
 
 	async function deleteImage(): Promise<void> {
@@ -73,7 +73,7 @@
 	</a>
 	{#if isCustom}
 		<Confirm bind:this={delConfirm}>
-			Please confirm image deletion.<br />
+			Please confirm custom image deletion.<br />
 			Operation cannot be undone.
 		</Confirm>
 		<button class="del-btn" on:click={deleteImage}><i class="fa-solid fa-trash" /></button>
