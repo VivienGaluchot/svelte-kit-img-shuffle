@@ -1,17 +1,17 @@
 import * as lm from '$lib/math';
 
 import type { PuzzleImage } from '../../lib/image';
-import type { Matrix } from './matrix';
+import type { Matrix } from './matrix.svelte';
 
 export class Tile {
 	matrix: Matrix;
 
 	// initial position in cell index
-	initial: lm.Vec2d;
+	initial: lm.Vec2d = $state({ x: 0, y: 0 });
 	// current position in cell index
-	current: lm.Vec2d;
+	current: lm.Vec2d = $state({ x: 0, y: 0 });
 
-	zIndex: number;
+	zIndex: number = $state(0);
 
 	private drag: {
 		from: null | {
@@ -26,7 +26,7 @@ export class Tile {
 			// in cell
 			originCurrent: lm.Vec2d;
 		};
-	};
+	} = $state({ from: null, to: null });
 
 	constructor(x: number, y: number, matrix: Matrix) {
 		this.matrix = matrix;
@@ -146,7 +146,7 @@ export class Tile {
 		}
 	}
 
-	style() {
+	style: string | undefined = $derived.by(() => {
 		const gridSize = this.matrix.options.getGridSize();
 		const initialSlotPos = this.matrix.options.getSlotPos(this.initial, this.cols);
 		let current;
@@ -177,5 +177,5 @@ export class Tile {
 				`z-index: ${this.zIndex} ; `
 			);
 		}
-	}
+	});
 }

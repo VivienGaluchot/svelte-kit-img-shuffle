@@ -5,7 +5,7 @@
 	import * as rd from '$lib/random';
 	import { cachedFn } from '$lib/cache';
 	import type { PuzzleImage } from '$lib/image';
-	import { DIR_2D_BOTTOM, DIR_2D_RIGHT, Matrix } from './matrix';
+	import { DIR_2D_BOTTOM, DIR_2D_RIGHT, Matrix } from './matrix.svelte';
 
 	interface Props {
 		tileCount: number;
@@ -97,6 +97,16 @@
 		return null;
 	}
 
+	// Matrix
+
+	const matrix = new Matrix({
+		tileCount,
+		image,
+		getGridSize: getGridSize.call,
+		getSlotPos: getSlotPos.call,
+		getSlotSize: getSlotSize.call
+	});
+
 	// Drag
 
 	function onMouseDown(event: MouseEvent) {
@@ -104,13 +114,11 @@
 		if (matrix.isDragging()) {
 			// handle edge cases where 2 mouse down are called without a mouse up in between
 			matrix.cancelDrag();
-			matrix = matrix;
 		} else {
 			const mousePos = { x: event.clientX, y: event.clientY };
 			const pos = slotPosFromPoint(mousePos);
 			if (pos) {
 				matrix.setDragFrom(pos, mousePos);
-				matrix = matrix;
 			}
 		}
 	}
@@ -120,7 +128,6 @@
 		if (!matrix.isDragging()) return;
 		const mousePos = { x: event.clientX, y: event.clientY };
 		matrix.dragUpdate(mousePos);
-		matrix = matrix;
 	}
 
 	function onMouseUp(event: MouseEvent) {
@@ -132,27 +139,16 @@
 		if (hasMoved) {
 			actionCount += 1;
 		}
-		matrix = matrix;
+
 		isSolved = matrix.isSolved();
 	}
 
 	// Main
 
-	let matrix = $state(
-		new Matrix({
-			tileCount,
-			image,
-			getGridSize: getGridSize.call,
-			getSlotPos: getSlotPos.call,
-			getSlotSize: getSlotSize.call
-		})
-	);
-
 	function onResize() {
 		getGridSize.clear();
 		getSlotPos.clear();
 		getSlotSize.clear();
-		matrix = matrix;
 	}
 
 	function onBeforeUnload(event: Event) {
@@ -171,7 +167,6 @@
 
 	onMount(() => {
 		matrix.shuffle(rd.getSfc32(rd.getSeed128(seed)));
-		matrix = matrix;
 		isSolved = matrix.isSolved();
 		rows = matrix.rows;
 		cols = matrix.cols;
@@ -193,7 +188,7 @@
  -->
 <div class="stack">
 	<div class="grid" style={matrix.style()} bind:this={slotGrid}>
-		{#each [...matrix.tiles()] as tile, index (tile)}
+		{#each matrix.matrix as tile, index (tile)}
 			<div
 				class="slot"
 				data-pos-x={tile.initial.x}
@@ -202,7 +197,7 @@
 			></div>
 		{/each}
 	</div>
-	{#each [...matrix.tiles()] as tile (tile)}
+	{#each matrix.matrix as tile (tile)}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<!-- <div
 			class="tile"
@@ -218,7 +213,7 @@
 			class="tile"
 			class:drag-from={tile.isDragFrom()}
 			onmousedown={onMouseDown}
-			style={tile.style()}
+			style={tile.style}
 		></div>
 	{/each}
 </div>

@@ -1,7 +1,7 @@
 import * as rd from '$lib/random';
 import * as lm from '$lib/math';
 
-import { Tile } from './tile';
+import { Tile } from './tile.svelte';
 import { splitInCell, type PuzzleImage } from '../../lib/image';
 
 export const DIR_2D_TOP = { x: 0, y: -1 };
@@ -43,7 +43,7 @@ export class Matrix {
 	options: MatrixOptions;
 	rows: number;
 	cols: number;
-	matrix: Tile[] = [];
+	matrix: Tile[];
 	bounds: lm.Rect2d;
 	zIndex: number;
 
