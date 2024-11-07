@@ -1,9 +1,14 @@
 <script lang="ts">
-	export let maxWidth: string = 'unset';
+	interface Props {
+		maxWidth?: string;
+		children?: import('svelte').Snippet;
+	}
+
+	let { maxWidth = 'unset', children }: Props = $props();
 </script>
 
 <div style="max-width: {maxWidth};">
-	<slot />
+	{@render children?.()}
 </div>
 
 <style>

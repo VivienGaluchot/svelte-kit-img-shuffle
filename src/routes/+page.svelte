@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { liveQuery } from 'dexie';
 	import * as im from '$lib/image';
 	import * as gs from '$lib/gameSetting';
@@ -12,23 +14,22 @@
 
 	// difficulty
 
-	let initialDifficulty = db.ldb.getDifficulty();
-	let difficulty: db.Difficulty;
+	let difficulty: db.Difficulty = $state(db.ldb.getDifficulty());
 
-	$: db.ldb.setDifficulty(difficulty);
-	let tileCount: number;
+	let tileCount: number = $derived.by(() => {
+		switch (difficulty) {
+			case 'easy':
+				return 40;
+			case 'medium':
+				return 80;
+			case 'hard':
+				return 120;
+		}
+	});
 
-	$: switch (difficulty) {
-		case 'easy':
-			tileCount = 40;
-			break;
-		case 'medium':
-			tileCount = 80;
-			break;
-		case 'hard':
-			tileCount = 120;
-			break;
-	}
+	$effect(() => {
+		db.ldb.setDifficulty(difficulty);
+	});
 
 	// static images
 
@@ -37,33 +38,38 @@
 		staticImageSettings.push({ kind: 'static', key });
 	}
 
+	let fileInput: HTMLInputElement;
+	let fileInputValue: FileList | null = $state(null);
+
 	// custom images
 
-	$: customImages = liveQuery(async () => {
-		const customImages: gs.CustomImageSetting[] = [];
-		try {
-			const keys = await db.idb.customImages.toCollection().reverse().primaryKeys();
-			for (const key of keys) {
-				customImages.push({ kind: 'custom', id: key });
+	let customImages = $derived(
+		liveQuery(async () => {
+			const customImages: gs.CustomImageSetting[] = [];
+			try {
+				const keys = await db.idb.customImages.toCollection().reverse().primaryKeys();
+				for (const key of keys) {
+					customImages.push({ kind: 'custom', id: key });
+				}
+			} catch (err) {
+				console.error('operation failed', err);
 			}
-		} catch (err) {
-			console.error('operation failed', err);
-		}
-		return customImages;
-	});
-
-	let fileInput: HTMLInputElement;
-	let fileInputValue: FileList | null = null;
-	$: if (fileInputValue) {
-		const file = fileInputValue[0];
-		if (file) {
-			add(file.name, file);
-		}
-	}
+			return customImages;
+		})
+	);
 
 	async function add(name: string, blob: Blob) {
 		await db.idb.customImages.add({ name, blob });
 	}
+
+	$effect(() => {
+		if (fileInputValue) {
+			const file = fileInputValue[0];
+			if (file) {
+				add(file.name, file);
+			}
+		}
+	});
 </script>
 
 <svelte:head>
@@ -75,9 +81,9 @@
 		<div class="flex-h">
 			Difficulty
 			<select bind:value={difficulty}>
-				<option value={'easy'} selected={initialDifficulty == 'easy'}>Easy</option>
-				<option value={'medium'} selected={initialDifficulty == 'medium'}>Medium</option>
-				<option value={'hard'} selected={initialDifficulty == 'hard'}>Hard</option>
+				<option value={'easy'} selected={difficulty == 'easy'}>Easy</option>
+				<option value={'medium'} selected={difficulty == 'medium'}>Medium</option>
+				<option value={'hard'} selected={difficulty == 'hard'}>Hard</option>
 			</select>
 		</div>
 	</Header>
@@ -95,8 +101,9 @@
 			<div class="flex-h">
 				<h2>Custom images</h2>
 				<div>
-					<button on:click={() => fileInput.click()}>
-						<i class="fa-solid fa-arrow-up-from-bracket" />
+					<!-- svelte-ignore a11y_consider_explicit_label -->
+					<button onclick={() => fileInput.click()}>
+						<i class="fa-solid fa-arrow-up-from-bracket"></i>
 					</button>
 					<input
 						bind:this={fileInput}

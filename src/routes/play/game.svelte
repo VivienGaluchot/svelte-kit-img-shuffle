@@ -7,21 +7,29 @@
 	import type { PuzzleImage } from '$lib/image';
 	import { DIR_2D_BOTTOM, DIR_2D_RIGHT, Matrix } from './matrix';
 
-	// Publics
+	interface Props {
+		tileCount: number;
+		seed: string;
+		image: PuzzleImage;
+		actionCount: number;
+		rows: number;
+		cols: number;
+		isSolved: boolean;
+	}
 
-	export let tileCount: number;
-	export let seed: string;
-	export let image: PuzzleImage;
-
-	export let actionCount: number = 0;
-	export let rows: number = 0;
-	export let cols: number = 0;
-
-	export let isSolved: boolean = false;
+	let {
+		tileCount,
+		seed,
+		image,
+		actionCount = $bindable(),
+		rows = $bindable(),
+		cols = $bindable(),
+		isSolved = $bindable()
+	}: Props = $props();
 
 	// Slots
 
-	const slots: HTMLElement[] = [];
+	const slots: HTMLElement[] = $state([]);
 	let slotGrid: HTMLElement;
 
 	const getGridSize = cachedFn((): lm.Vec2d | null => {
@@ -130,14 +138,15 @@
 
 	// Main
 
-	let matrix = new Matrix({
-		tileCount,
-		image,
-		getGridSize: getGridSize.call,
-		getSlotPos: getSlotPos.call,
-		getSlotSize: getSlotSize.call
-	});
-	matrix.shuffle(rd.getSfc32(rd.getSeed128(seed)));
+	let matrix = $state(
+		new Matrix({
+			tileCount,
+			image,
+			getGridSize: getGridSize.call,
+			getSlotPos: getSlotPos.call,
+			getSlotSize: getSlotSize.call
+		})
+	);
 
 	function onResize() {
 		getGridSize.clear();
@@ -161,6 +170,7 @@
 	});
 
 	onMount(() => {
+		matrix.shuffle(rd.getSfc32(rd.getSeed128(seed)));
 		matrix = matrix;
 		isSolved = matrix.isSolved();
 		rows = matrix.rows;
@@ -172,7 +182,7 @@
 	});
 </script>
 
-<svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove} on:beforeunload={onBeforeUnload} />
+<svelte:window onmouseup={onMouseUp} onmousemove={onMouseMove} onbeforeunload={onBeforeUnload} />
 
 <!--
 	TODO
@@ -189,11 +199,11 @@
 				data-pos-x={tile.initial.x}
 				data-pos-y={tile.initial.y}
 				bind:this={slots[index]}
-			/>
+			></div>
 		{/each}
 	</div>
 	{#each [...matrix.tiles()] as tile (tile)}
-		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<!-- <div
 			class="tile"
 			class:drag-from={tile.isDragFrom()}
@@ -207,9 +217,9 @@
 		<div
 			class="tile"
 			class:drag-from={tile.isDragFrom()}
-			on:mousedown={onMouseDown}
+			onmousedown={onMouseDown}
 			style={tile.style()}
-		/>
+		></div>
 	{/each}
 </div>
 
@@ -265,6 +275,8 @@
 	*/
 
 	.tile:not(.tile.drag-from) {
-		transition: top 200ms ease-in-out, left 200ms ease-in-out;
+		transition:
+			top 200ms ease-in-out,
+			left 200ms ease-in-out;
 	}
 </style>

@@ -1,5 +1,12 @@
 <script lang="ts">
-	export let onClose: (() => void) | undefined = undefined;
+	import type { Snippet } from 'svelte';
+
+	interface Props {
+		onClose?: (() => void) | undefined;
+		children?: Snippet;
+	}
+
+	let { onClose = undefined, children }: Props = $props();
 
 	let dialog: HTMLDialogElement;
 
@@ -19,11 +26,11 @@
 	}
 </script>
 
-<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<dialog bind:this={dialog} on:click={click}>
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<dialog bind:this={dialog} onclick={click}>
 	<div class="content">
-		<slot />
+		{@render children?.()}
 	</div>
 </dialog>
 

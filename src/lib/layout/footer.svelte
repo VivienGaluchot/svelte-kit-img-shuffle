@@ -9,18 +9,18 @@
 			href="https://github.com/VivienGaluchot/svelte-kit-img-shuffle"
 			target="_blank"
 		>
-			<i class="fa-brands fa-github" /> Contribute
+			<i class="fa-brands fa-github"></i> Contribute
 		</a>
 		<a
 			class="button"
 			href="https://github.com/VivienGaluchot/svelte-kit-img-shuffle/issues"
 			target="_blank"
 		>
-			<i class="fa-solid fa-bug" /> Raise issue
+			<i class="fa-solid fa-bug"></i> Raise issue
 		</a>
 	</div>
 	<div>
-		<i class="fa-solid fa-code-branch" />
+		<i class="fa-solid fa-code-branch"></i>
 		{PUBLIC_VERSION}
 	</div>
 </footer>

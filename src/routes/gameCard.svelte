@@ -6,8 +6,12 @@
 	import * as rd from '$lib/random';
 	import { liveQuery } from 'dexie';
 
-	export let image: gs.ImageSetting;
-	export let tileCount: number;
+	interface Props {
+		image: gs.ImageSetting;
+		tileCount: number;
+	}
+
+	let { image, tileCount }: Props = $props();
 
 	function getUrl(tileCount: number) {
 		const url = new URL(`${paths.base}/play`, window.location.origin);
@@ -15,35 +19,38 @@
 		return url.toString();
 	}
 
-	$: isComplete = liveQuery(async () => {
-		try {
-			let collection;
-			switch (image.kind) {
-				case 'static':
-					collection = idb.gameCompletes.where({
-						'settings.image.kind': image.kind,
-						'settings.image.key': image.key,
-						'settings.tileCount': tileCount
-					});
-					break;
-				case 'custom':
-					collection = idb.gameCompletes.where({
-						'settings.image.kind': image.kind,
-						'settings.image.id': image.id,
-						'settings.tileCount': tileCount
-					});
-					break;
+	let isComplete = $derived(
+		liveQuery(async () => {
+			try {
+				let collection;
+				switch (image.kind) {
+					case 'static':
+						collection = idb.gameCompletes.where({
+							'settings.image.kind': image.kind,
+							'settings.image.key': image.key,
+							'settings.tileCount': tileCount
+						});
+						break;
+					case 'custom':
+						collection = idb.gameCompletes.where({
+							'settings.image.kind': image.kind,
+							'settings.image.id': image.id,
+							'settings.tileCount': tileCount
+						});
+						break;
+				}
+				return (await collection.limit(1).count()) > 0;
+			} catch (err) {
+				console.error('operation failed', err);
 			}
-			return (await collection.limit(1).count()) > 0;
-		} catch (err) {
-			console.error('operation failed', err);
-		}
-		return false;
-	});
+			return false;
+		})
+	);
 
 	// delete
 
-	let delConfirm: Confirm;
+	let delConfirm: ReturnType<typeof Confirm>;
+
 	const isCustom = image.kind == 'custom';
 
 	async function deleteImage(): Promise<void> {
@@ -55,28 +62,30 @@
 	}
 </script>
 
+<Confirm bind:this={delConfirm}>
+	Please confirm custom image deletion.<br />
+	Operation cannot be undone.
+</Confirm>
+
 <div class="box">
 	<a class="card" class:complete={$isComplete === true} href={getUrl(tileCount)}>
 		{#await gs.getImage(image) then image}
 			<div class="preview">
-				<div class="preview-bg" style="background-image: url({image.url});" />
+				<div class="preview-bg" style="background-image: url({image.url});"></div>
 			</div>
 			<div class="bar">
 				<div class="name">{image.name}</div>
 				<div class="tag">
 					{#if $isComplete === true}
-						<i class="fa-solid fa-circle-check" />
+						<i class="fa-solid fa-circle-check"></i>
 					{/if}
 				</div>
 			</div>
 		{/await}
 	</a>
 	{#if isCustom}
-		<Confirm bind:this={delConfirm}>
-			Please confirm custom image deletion.<br />
-			Operation cannot be undone.
-		</Confirm>
-		<button class="del-btn" on:click={deleteImage}><i class="fa-solid fa-trash" /></button>
+		<!-- svelte-ignore a11y_consider_explicit_label -->
+		<button class="del-btn" onclick={deleteImage}><i class="fa-solid fa-trash"></i></button>
 	{/if}
 </div>
 

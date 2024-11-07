@@ -1,5 +1,10 @@
 <script lang="ts">
 	import * as paths from '$app/paths';
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
+
+	let { children }: Props = $props();
 </script>
 
 <header>
@@ -7,7 +12,7 @@
 		<img src="{paths.base}/favicon.png" alt="logo" />
 		<h1>Picture slicer</h1>
 	</div>
-	<slot />
+	{@render children?.()}
 </header>
 
 <style>

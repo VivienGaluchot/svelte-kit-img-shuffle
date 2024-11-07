@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { onMount } from 'svelte';
 	import * as paths from '$app/paths';
 	import { page } from '$app/stores';
@@ -18,16 +20,16 @@
 	const imageResource = gs.getImage(gameSettings.image);
 	const imagePromise = imageResource.then(im.toPuzzleImage);
 
-	let actionCount: number;
-	let rows: number;
-	let cols: number;
-	let isSolved: boolean;
+	let actionCount: number = $state(0);
+	let rows: number = $state(0);
+	let cols: number = $state(0);
+	let isSolved: boolean = $state(false);
 
 	// share button
 
 	const isShareable = gameSettings.image.kind == 'static';
 
-	let shareState: undefined | 'success' | 'failed';
+	let shareState: undefined | 'success' | 'failed' = $state();
 	let resetTimeout: undefined | number;
 	function waitAndReset() {
 		if (resetTimeout) {
@@ -53,17 +55,13 @@
 
 	// duration
 
-	let durationInSec = 0;
+	let durationInSec = $state(0);
 
 	const interval = setInterval(() => {
 		if (!document.hidden) {
 			durationInSec += 1;
 		}
 	}, 1000);
-
-	$: if (isSolved) {
-		clearInterval(interval);
-	}
 
 	onMount(() => {
 		return () => {
@@ -73,9 +71,12 @@
 
 	// on solved
 
-	$: if (isSolved) {
-		idb.gameCompletes.add({ settings: gameSettings, actionCount, durationInSec });
-	}
+	$effect(() => {
+		if (isSolved) {
+			clearInterval(interval);
+			idb.gameCompletes.add({ settings: gameSettings, actionCount, durationInSec });
+		}
+	});
 </script>
 
 <svelte:head>
@@ -101,10 +102,10 @@
 					class="share-btn"
 					class:success={shareState == 'success'}
 					class:failed={shareState == 'failed'}
-					on:click={share}
+					onclick={share}
 				>
 					Share link
-					<i class="fa-solid fa-copy" />
+					<i class="fa-solid fa-copy"></i>
 				</button>
 			{/if}
 			<div>

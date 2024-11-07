@@ -1,9 +1,16 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import Dialog from '$lib/cmp/dialog.svelte';
 
-	let dialog: Dialog;
+	interface Props {
+		children?: Snippet;
+	}
 
-	let pendingResolve: ((result: boolean) => void) | undefined = undefined;
+	let { children }: Props = $props();
+
+	let dialog: ReturnType<typeof Dialog>;
+
+	let pendingResolve: ((result: boolean) => void) | undefined = $state(undefined);
 
 	function yes(): void {
 		pendingResolve?.(true);
@@ -34,12 +41,12 @@
 	<div class="flex-v">
 		<div class="title">Confirmation required</div>
 		<div class="content">
-			<slot />
+			{@render children?.()}
 		</div>
 		<div class="buttons">
-			<button class="danger" on:click={yes}>Yes</button>
-			<!-- svelte-ignore a11y-autofocus -->
-			<button autofocus on:click={no}>No</button>
+			<button class="danger" onclick={yes}>Yes</button>
+			<!-- svelte-ignore a11y_autofocus -->
+			<button autofocus onclick={no}>No</button>
 		</div>
 	</div>
 </Dialog>

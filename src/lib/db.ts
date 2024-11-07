@@ -52,7 +52,6 @@ export const ldb = {
 		}
 	},
 	setDifficulty(difficulty: Difficulty) {
-		console.log(difficulty);
 		window.localStorage.setItem(DifficultyKey, difficulty);
 	}
 };
