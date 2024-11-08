@@ -49,7 +49,7 @@
 
 	// delete
 
-	let delConfirm: ReturnType<typeof Confirm>;
+	let delConfirm: Confirm;
 
 	const isCustom = image.kind == 'custom';
 

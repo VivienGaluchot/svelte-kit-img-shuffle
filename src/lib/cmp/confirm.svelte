@@ -8,7 +8,7 @@
 
 	let { children }: Props = $props();
 
-	let dialog: ReturnType<typeof Dialog>;
+	let dialog: Dialog;
 
 	let pendingResolve: ((result: boolean) => void) | undefined = $state(undefined);
 
