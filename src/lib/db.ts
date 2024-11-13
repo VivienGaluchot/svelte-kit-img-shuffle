@@ -35,7 +35,7 @@ idb.version(2).stores({
 
 // Local db
 
-export type Difficulty = 'easy' | 'medium' | 'hard';
+export type Difficulty = 'easy' | 'medium' | 'hard' | 'super-hard';
 
 const DifficultyKey = 'difficulty_v1';
 
@@ -49,6 +49,8 @@ export const ldb = {
 				return 'medium';
 			case 'hard':
 				return 'hard';
+			case 'super-hard':
+				return 'super-hard';
 		}
 	},
 	setDifficulty(difficulty: Difficulty) {

@@ -24,6 +24,8 @@
 				return 80;
 			case 'hard':
 				return 120;
+			case 'super-hard':
+				return 240;
 		}
 	});
 
@@ -84,6 +86,7 @@
 				<option value={'easy'} selected={difficulty == 'easy'}>Easy</option>
 				<option value={'medium'} selected={difficulty == 'medium'}>Medium</option>
 				<option value={'hard'} selected={difficulty == 'hard'}>Hard</option>
+				<option value={'super-hard'} selected={difficulty == 'super-hard'}>Super Hard</option>
 			</select>
 		</div>
 	</Header>
