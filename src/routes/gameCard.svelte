@@ -36,8 +36,12 @@
 		}
 	}
 
-	let isComplete = $derived(
-		liveQuery(async () => {
+	let isComplete = $derived.by(() => {
+		// noop for reactivity
+		// see https://github.com/dexie/Dexie.js/issues/2075
+		tileCount;
+		image;
+		return liveQuery(async () => {
 			try {
 				const collection = db.idb.gameCompletes
 					.where(equalImageTileCount(image, tileCount))
@@ -47,8 +51,8 @@
 				console.error('operation failed', err);
 			}
 			return false;
-		})
-	);
+		});
+	});
 
 	// delete
 	// ---------------------------
