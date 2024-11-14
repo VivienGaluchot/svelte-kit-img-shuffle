@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie';
-import type { GameSettings } from './gameSetting';
+import * as gs from './gameSetting';
 
 // Indexed db
 
@@ -13,7 +13,7 @@ export interface CustomImage {
 
 export interface GameComplete {
 	id: number;
-	settings: GameSettings;
+	settings: gs.GameSettings;
 	actionCount: number;
 	durationInSec: number;
 }

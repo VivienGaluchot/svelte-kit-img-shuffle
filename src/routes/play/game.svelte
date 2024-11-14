@@ -28,6 +28,7 @@
 	}: Props = $props();
 
 	// Slots
+	// ---------------------------
 
 	const slots: HTMLElement[] = $state([]);
 	let slotGrid: HTMLElement;
@@ -98,6 +99,7 @@
 	}
 
 	// Matrix
+	// ---------------------------
 
 	const matrix = new Matrix({
 		tileCount,
@@ -108,6 +110,7 @@
 	});
 
 	// Drag
+	// ---------------------------
 
 	function onMouseDown(event: MouseEvent) {
 		if (isSolved) return;
@@ -144,6 +147,7 @@
 	}
 
 	// Main
+	// ---------------------------
 
 	function onResize() {
 		getGridSize.clear();

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as paths from '$app/paths';
 	import Confirm from '$lib/cmp/confirm.svelte';
-	import { idb } from '$lib/db';
+	import * as db from '$lib/db';
 	import * as gs from '$lib/gameSetting';
 	import * as rd from '$lib/random';
 	import { liveQuery } from 'dexie';
@@ -19,35 +19,35 @@
 		return url.toString();
 	}
 
-	let isComplete = $derived(
-		liveQuery(async () => {
-			try {
-				let collection;
-				switch (image.kind) {
-					case 'static':
-						collection = idb.gameCompletes.where({
-							'settings.image.kind': image.kind,
-							'settings.image.key': image.key,
-							'settings.tileCount': tileCount
-						});
-						break;
-					case 'custom':
-						collection = idb.gameCompletes.where({
-							'settings.image.kind': image.kind,
-							'settings.image.id': image.id,
-							'settings.tileCount': tileCount
-						});
-						break;
-				}
-				return (await collection.limit(1).count()) > 0;
-			} catch (err) {
-				console.error('operation failed', err);
-			}
-			return false;
-		})
-	);
+	function equalImageTileCount(image: gs.ImageSetting, tileCount: number) {
+		switch (image.kind) {
+			case 'static':
+				return {
+					'settings.image.kind': image.kind,
+					'settings.image.key': image.key,
+					'settings.tileCount': tileCount
+				};
+			case 'custom':
+				return {
+					'settings.image.kind': image.kind,
+					'settings.image.id': image.id,
+					'settings.tileCount': tileCount
+				};
+		}
+	}
+
+	let isComplete = liveQuery(async () => {
+		try {
+			const collection = db.idb.gameCompletes.where(equalImageTileCount(image, tileCount)).limit(1);
+			return (await collection.count()) > 0;
+		} catch (err) {
+			console.error('operation failed', err);
+		}
+		return false;
+	});
 
 	// delete
+	// ---------------------------
 
 	let delConfirm: Confirm;
 
@@ -56,7 +56,8 @@
 	async function deleteImage(): Promise<void> {
 		if (image.kind == 'custom') {
 			if (await delConfirm.ask()) {
-				await idb.customImages.delete(image.id);
+				// TODO also delete related gameCompletes entries
+				await db.idb.customImages.delete(image.id);
 			}
 		}
 	}

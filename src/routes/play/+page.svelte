@@ -25,7 +25,8 @@
 	let cols: number = $state(0);
 	let isSolved: boolean = $state(false);
 
-	// share button
+	// share
+	// ---------------------------
 
 	const isShareable = gameSettings.image.kind == 'static';
 
@@ -54,6 +55,7 @@
 	}
 
 	// duration
+	// ---------------------------
 
 	let durationInSec = $state(0);
 
@@ -70,6 +72,7 @@
 	});
 
 	// on solved
+	// ---------------------------
 
 	$effect(() => {
 		if (isSolved) {

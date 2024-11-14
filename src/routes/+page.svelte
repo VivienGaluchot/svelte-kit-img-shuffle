@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import { liveQuery } from 'dexie';
 	import * as im from '$lib/image';
 	import * as gs from '$lib/gameSetting';
@@ -13,10 +11,9 @@
 	import Section from '$lib/layout/section.svelte';
 
 	// difficulty
+	// ---------------------------
 
-	let difficulty: db.Difficulty = $state(db.ldb.getDifficulty());
-
-	let tileCount: number = $derived.by(() => {
+	function getTileCount(difficulty: db.Difficulty): number {
 		switch (difficulty) {
 			case 'easy':
 				return 40;
@@ -27,13 +24,18 @@
 			case 'super-hard':
 				return 240;
 		}
-	});
+	}
+
+	let difficulty: db.Difficulty = $state(db.ldb.getDifficulty());
+
+	let tileCount: number = $derived(getTileCount(difficulty));
 
 	$effect(() => {
 		db.ldb.setDifficulty(difficulty);
 	});
 
 	// static images
+	// ---------------------------
 
 	const staticImageSettings: gs.StaticImageSetting[] = [];
 	for (const key of Object.keys(im.staticImages)) {
@@ -43,22 +45,37 @@
 	let fileInput: HTMLInputElement;
 	let fileInputValue: FileList | null = $state(null);
 
-	// custom images
+	// Unlock super hard when all the static images have been completed in hard mode
+	let isSuperHardUnlocked = liveQuery(async () => {
+		try {
+			let keys = await db.idb.gameCompletes
+				.orderBy('settings.image.key')
+				.filter((x) => {
+					return x.settings.tileCount == getTileCount('hard');
+				})
+				.uniqueKeys();
+			return keys.length == Object.keys(im.staticImages).length;
+		} catch (err) {
+			console.error('operation failed', err);
+		}
+		return false;
+	});
 
-	let customImages = $derived(
-		liveQuery(async () => {
-			const customImages: gs.CustomImageSetting[] = [];
-			try {
-				const keys = await db.idb.customImages.toCollection().reverse().primaryKeys();
-				for (const key of keys) {
-					customImages.push({ kind: 'custom', id: key });
-				}
-			} catch (err) {
-				console.error('operation failed', err);
+	// custom images
+	// ---------------------------
+
+	let customImages = liveQuery(async () => {
+		const customImages: gs.CustomImageSetting[] = [];
+		try {
+			const keys = await db.idb.customImages.toCollection().reverse().primaryKeys();
+			for (const key of keys) {
+				customImages.push({ kind: 'custom', id: key });
 			}
-			return customImages;
-		})
-	);
+		} catch (err) {
+			console.error('operation failed', err);
+		}
+		return customImages;
+	});
 
 	async function add(name: string, blob: Blob) {
 		await db.idb.customImages.add({ name, blob });
@@ -86,7 +103,9 @@
 				<option value={'easy'} selected={difficulty == 'easy'}>Easy</option>
 				<option value={'medium'} selected={difficulty == 'medium'}>Medium</option>
 				<option value={'hard'} selected={difficulty == 'hard'}>Hard</option>
-				<option value={'super-hard'} selected={difficulty == 'super-hard'}>Super Hard</option>
+				{#if $isSuperHardUnlocked || difficulty == 'super-hard'}
+					<option value={'super-hard'} selected={difficulty == 'super-hard'}>Super Hard</option>
+				{/if}
 			</select>
 		</div>
 	</Header>
@@ -120,7 +139,6 @@
 			{#if $customImages && $customImages.length > 0}
 				<div class="grid">
 					{#each $customImages as image (image.id)}
-						<!-- TODO: delete via image menu -->
 						<GameCard {image} {tileCount} />
 					{/each}
 				</div>

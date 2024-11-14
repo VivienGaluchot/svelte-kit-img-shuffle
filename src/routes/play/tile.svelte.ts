@@ -13,7 +13,7 @@ export class Tile {
 
 	zIndex: number = $state(0);
 
-	private drag: {
+	#drag: {
 		from: null | {
 			// in cell
 			originCurrent: lm.Vec2d;
@@ -32,31 +32,31 @@ export class Tile {
 		this.matrix = matrix;
 		this.initial = { x, y };
 		this.current = { x, y };
-		this.drag = {
+		this.#drag = {
 			from: null,
 			to: null
 		};
 		this.zIndex = 0;
 	}
 
-	private get cols(): number {
+	get #cols(): number {
 		return this.matrix.cols;
 	}
 
-	private get image(): PuzzleImage {
+	get #image(): PuzzleImage {
 		return this.matrix.image;
 	}
 
 	isDragFrom(): boolean {
-		return this.drag.from != null;
+		return this.#drag.from != null;
 	}
 
 	isDragTo(): boolean {
-		return this.drag.to != null;
+		return this.#drag.to != null;
 	}
 
 	originOrCurrent(): lm.Vec2d {
-		return this.drag.from?.originCurrent ?? this.drag.to?.originCurrent ?? this.current;
+		return this.#drag.from?.originCurrent ?? this.#drag.to?.originCurrent ?? this.current;
 	}
 
 	getNext(dir: lm.Vec2d): Tile | null {
@@ -84,17 +84,17 @@ export class Tile {
 	}
 
 	setDragFrom(mousePos: lm.Vec2d) {
-		if (this.drag.from != null) {
+		if (this.#drag.from != null) {
 			throw new Error('setDragFrom: from already set');
 		}
-		if (this.drag.to != null) {
+		if (this.#drag.to != null) {
 			throw new Error('setDragFrom: to already set');
 		}
-		const slot = this.matrix.options.getSlotPos(this.current, this.cols);
+		const slot = this.matrix.options.getSlotPos(this.current, this.#cols);
 		if (!slot) {
 			throw new Error('setDragFrom: slot not found');
 		}
-		this.drag.from = {
+		this.#drag.from = {
 			originCurrent: this.current,
 			originMouse: mousePos,
 			pullOffset: { x: 0, y: 0 }
@@ -102,61 +102,61 @@ export class Tile {
 	}
 
 	updateDragFrom(mousePos: lm.Vec2d) {
-		if (this.drag.from == null) {
+		if (this.#drag.from == null) {
 			throw new Error('updateDragFrom: from unset');
 		}
-		const mouseDiff = lm.vec2dSubtract(mousePos, this.drag.from.originMouse);
-		this.drag.from.pullOffset = mouseDiff;
+		const mouseDiff = lm.vec2dSubtract(mousePos, this.#drag.from.originMouse);
+		this.#drag.from.pullOffset = mouseDiff;
 	}
 
 	unsetDragFrom() {
-		if (this.drag.from == null) {
+		if (this.#drag.from == null) {
 			throw new Error('unsetDragFrom: from unset');
 		}
-		this.drag.from = null;
+		this.#drag.from = null;
 	}
 
 	setDragTo() {
-		if (this.drag.from != null) {
+		if (this.#drag.from != null) {
 			throw new Error('setDragTo: from already set');
 		}
-		if (this.drag.to != null) {
+		if (this.#drag.to != null) {
 			throw new Error('setDragTo: to already set');
 		}
-		this.drag.to = {
+		this.#drag.to = {
 			originCurrent: this.current
 		};
 	}
 
 	unsetDragTo() {
-		if (this.drag.to == null) {
+		if (this.#drag.to == null) {
 			throw new Error('unsetDragTo: to unset');
 		}
-		this.current = this.drag.to.originCurrent;
-		this.drag.to = null;
+		this.current = this.#drag.to.originCurrent;
+		this.#drag.to = null;
 	}
 
 	cancelDrag() {
-		if (this.drag.from) {
-			this.current = this.drag.from.originCurrent;
+		if (this.#drag.from) {
+			this.current = this.#drag.from.originCurrent;
 			this.unsetDragFrom();
 		}
-		if (this.drag.to) {
+		if (this.#drag.to) {
 			this.unsetDragTo();
 		}
 	}
 
 	style: string | undefined = $derived.by(() => {
 		const gridSize = this.matrix.options.getGridSize();
-		const initialSlotPos = this.matrix.options.getSlotPos(this.initial, this.cols);
+		const initialSlotPos = this.matrix.options.getSlotPos(this.initial, this.#cols);
 		let current;
 		if (this.isDragFrom()) {
 			current = this.originOrCurrent();
 		} else {
 			current = this.current;
 		}
-		const currentSlotPos = this.matrix.options.getSlotPos(current, this.cols);
-		const currentSlotSize = this.matrix.options.getSlotSize(current, this.cols);
+		const currentSlotPos = this.matrix.options.getSlotPos(current, this.#cols);
+		const currentSlotSize = this.matrix.options.getSlotSize(current, this.#cols);
 		if (gridSize && initialSlotPos && currentSlotPos && currentSlotSize) {
 			let bgPos = { ...initialSlotPos };
 			bgPos.x = Math.min(bgPos.x, gridSize.x - currentSlotSize.x);
@@ -167,11 +167,11 @@ export class Tile {
 			bgPos.y = bgPos.y * -1;
 			const bgSize = gridSize;
 			return (
-				`left: ${currentSlotPos.x + (this.drag.from?.pullOffset.x ?? 0)}px; ` +
-				`top: ${currentSlotPos.y + (this.drag.from?.pullOffset?.y ?? 0)}px; ` +
+				`left: ${currentSlotPos.x + (this.#drag.from?.pullOffset.x ?? 0)}px; ` +
+				`top: ${currentSlotPos.y + (this.#drag.from?.pullOffset?.y ?? 0)}px; ` +
 				`width: ${currentSlotSize.x}px; ` +
 				`height: ${currentSlotSize.y}px;` +
-				`background-image: url(${this.image.url}); ` +
+				`background-image: url(${this.#image.url}); ` +
 				`background-position: ${bgPos.x}px ${bgPos.y}px; ` +
 				`background-size: ${bgSize.x}px ${bgSize.y}px ; ` +
 				`z-index: ${this.zIndex} ; `
