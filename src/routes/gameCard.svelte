@@ -36,15 +36,19 @@
 		}
 	}
 
-	let isComplete = liveQuery(async () => {
-		try {
-			const collection = db.idb.gameCompletes.where(equalImageTileCount(image, tileCount)).limit(1);
-			return (await collection.count()) > 0;
-		} catch (err) {
-			console.error('operation failed', err);
-		}
-		return false;
-	});
+	let isComplete = $derived(
+		liveQuery(async () => {
+			try {
+				const collection = db.idb.gameCompletes
+					.where(equalImageTileCount(image, tileCount))
+					.limit(1);
+				return (await collection.count()) > 0;
+			} catch (err) {
+				console.error('operation failed', err);
+			}
+			return false;
+		})
+	);
 
 	// delete
 	// ---------------------------
