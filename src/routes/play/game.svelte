@@ -33,13 +33,6 @@
 	const slots: HTMLElement[] = $state([]);
 	let slotGrid: HTMLElement;
 
-	const getGridSize = cachedFn((): lm.Vec2d | null => {
-		if (slotGrid) {
-			return { x: slotGrid.offsetWidth, y: slotGrid.offsetHeight };
-		}
-		return null;
-	});
-
 	const getSlotPos = cachedFn((pos: lm.Vec2d, cols: number): lm.Vec2d | null => {
 		if (slots.length > 0) {
 			if (pos.x >= cols) {
@@ -104,7 +97,6 @@
 	const matrix = new Matrix({
 		tileCount,
 		image,
-		getGridSize: getGridSize.call,
 		getSlotPos: getSlotPos.call,
 		getSlotSize: getSlotSize.call
 	});
@@ -150,9 +142,9 @@
 	// ---------------------------
 
 	function onResize() {
-		getGridSize.clear();
 		getSlotPos.clear();
 		getSlotSize.clear();
+		matrix.gridSize = { x: slotGrid.offsetWidth, y: slotGrid.offsetHeight };
 	}
 
 	function onBeforeUnload(event: Event) {
@@ -175,6 +167,7 @@
 		rows = matrix.rows;
 		cols = matrix.cols;
 		window.addEventListener('resize', onResize);
+		onResize();
 		return () => {
 			window.removeEventListener('resize', onResize);
 		};
@@ -200,10 +193,9 @@
 				bind:this={slots[index]}
 			></div>
 		{/each}
-	</div>
-	{#each matrix.matrix as tile (tile)}
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<!-- <div
+		{#each matrix.matrix as tile (tile)}
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<!-- <div
 			class="tile"
 			class:drag-from={tile.isDragFrom()}
 			class:top-ok={tile.isOkWithNext(DIR_2D_TOP)}
@@ -213,13 +205,14 @@
 			on:mousedown={onMouseDown}
 			style={tile.style()}
 		/> -->
-		<div
-			class="tile"
-			class:drag-from={tile.isDragFrom()}
-			onmousedown={onMouseDown}
-			style={tile.style}
-		></div>
-	{/each}
+			<div
+				class="tile"
+				class:drag-from={tile.isDragFrom()}
+				onmousedown={onMouseDown}
+				style={tile.style}
+			></div>
+		{/each}
+	</div>
 </div>
 
 <style>
@@ -227,12 +220,26 @@
 		position: relative;
 		overflow: hidden;
 		border-radius: 0.2rem;
+		background: rgba(0, 0, 0, 0.2);
+		flex-grow: 1;
+		border-radius: 0.5rem;
+		container-type: size;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	@property --grid-aspect-ratio {
+		syntax: '<number>';
+		inherits: false;
+		initial-value: 1;
 	}
 
 	.grid {
+		position: relative;
 		display: grid;
-		/* width: 50rem; */
-		max-width: 100%;
+		width: min(100cqw, calc(var(--grid-aspect-ratio) * 100cqh));
+		height: min(calc(100cqw / var(--grid-aspect-ratio)), 100cqh);
 	}
 
 	.slot {

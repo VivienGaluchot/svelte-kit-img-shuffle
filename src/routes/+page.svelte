@@ -114,54 +114,54 @@
 			</select>
 		</div>
 	</Header>
-	<Content>
-		<Section gap="2rem">
-			<div class="nav">
-				<ul class="activatable">
-					<li>
-						<a href={officialUrl.toString()} class="button" class:active={tab == 'official'}
-							>Official images</a
-						>
-					</li>
-					<li>
-						<a href={customUrl.toString()} class="button" class:active={tab == 'custom'}
-							>Custom images</a
-						>
-					</li>
-				</ul>
-				<ul>
-					{#if tab == 'custom'}
-						<li>
-							<button onclick={() => fileInput?.click()} aria-label="add image">
-								<i class="fa-solid fa-arrow-up-from-bracket"></i>
-							</button>
-							<input
-								bind:this={fileInput}
-								hidden
-								type="file"
-								accept="image/*"
-								bind:files={fileInputValue}
-							/>
-						</li>
-					{/if}
-				</ul>
-			</div>
 
-			<div class="grid">
-				{#if tab == 'official'}
-					{#each staticImageSettings as image (image.key)}
+	<Content>
+		<div class="nav">
+			<ul class="activatable">
+				<li>
+					<a href={officialUrl.toString()} class="button" class:active={tab == 'official'}
+						>Official images</a
+					>
+				</li>
+				<li>
+					<a href={customUrl.toString()} class="button" class:active={tab == 'custom'}
+						>Custom images</a
+					>
+				</li>
+			</ul>
+			<ul>
+				{#if tab == 'custom'}
+					<li>
+						<button onclick={() => fileInput?.click()} aria-label="add image">
+							<i class="fa-solid fa-arrow-up-from-bracket"></i>
+						</button>
+						<input
+							bind:this={fileInput}
+							hidden
+							type="file"
+							accept="image/*"
+							bind:files={fileInputValue}
+						/>
+					</li>
+				{/if}
+			</ul>
+		</div>
+
+		<div class="grid">
+			{#if tab == 'official'}
+				{#each staticImageSettings as image (image.key)}
+					<GameCard {image} {tileCount} />
+				{/each}
+			{:else if tab == 'custom'}
+				{#if $customImages && $customImages.length > 0}
+					{#each $customImages as image (image.id)}
 						<GameCard {image} {tileCount} />
 					{/each}
-				{:else if tab == 'custom'}
-					{#if $customImages && $customImages.length > 0}
-						{#each $customImages as image (image.id)}
-							<GameCard {image} {tileCount} />
-						{/each}
-					{/if}
 				{/if}
-			</div>
-		</Section>
+			{/if}
+		</div>
 	</Content>
+
 	<Footer />
 </Container>
 
@@ -175,9 +175,13 @@
 	}
 
 	.grid {
+		flex-shrink: 1;
+		overflow: auto;
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+		grid-auto-rows: min-content;
 		gap: 1rem;
+		border-radius: 0.5rem;
 	}
 
 	.nav {

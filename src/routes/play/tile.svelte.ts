@@ -147,7 +147,7 @@ export class Tile {
 	}
 
 	style: string | undefined = $derived.by(() => {
-		const gridSize = this.matrix.options.getGridSize();
+		const gridSize = this.matrix.gridSize;
 		const initialSlotPos = this.matrix.options.getSlotPos(this.initial, this.#cols);
 		let current;
 		if (this.isDragFrom()) {

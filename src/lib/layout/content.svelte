@@ -8,16 +8,20 @@
 	let { children }: Props = $props();
 </script>
 
-<div>
+<div class="content">
 	{@render children?.()}
 </div>
 
 <style>
-	div {
+	.content {
+		background-color: rgba(0, 0, 0, 0.2);
+		border-radius: 0.5rem;
 		justify-self: start;
 		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
+		min-height: 5rem;
+		padding: 1rem;
 	}
 </style>

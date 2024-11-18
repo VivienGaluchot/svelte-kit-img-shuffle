@@ -34,7 +34,6 @@ export interface DragAction {
 export interface MatrixOptions {
 	tileCount: number;
 	image: PuzzleImage;
-	getGridSize(): lm.Vec2d | null;
 	getSlotPos(pos: lm.Vec2d, cols: number): lm.Vec2d | null;
 	getSlotSize(pos: lm.Vec2d, cols: number): lm.Vec2d | null;
 }
@@ -46,6 +45,7 @@ export class Matrix {
 	matrix: Tile[];
 	bounds: lm.Rect2d;
 	zIndex: number;
+	gridSize: lm.Vec2d | null = $state(null);
 
 	constructor(options: MatrixOptions) {
 		this.options = options;
@@ -126,7 +126,7 @@ export class Matrix {
 
 	style() {
 		return (
-			`aspect-ratio: ${this.image.size.x} / ${this.image.size.y}; ` +
+			`--grid-aspect-ratio: calc(${this.image.size.x / this.image.size.y}); ` +
 			`grid-template-columns: repeat(${this.cols}, 1fr);`
 		);
 	}

@@ -106,7 +106,7 @@
 	{/await}
 </svelte:head>
 
-<Container maxWidth="50rem">
+<Container>
 	<Header>
 		<div class="toolbar">
 			<div class="img-name">
@@ -135,33 +135,29 @@
 
 	<Content>
 		{#await imagePromise}
-			<Section>Loading image...</Section>
+			Loading image...
 		{:then image}
-			<Section>
-				<Game bind:rows bind:cols bind:actionCount bind:isSolved {tileCount} {seed} {image} />
+			<Game bind:rows bind:cols bind:actionCount bind:isSolved {tileCount} {seed} {image} />
 
-				<div class="toolbar">
-					<div class="muted" style="flex:1;">
-						{rows} x {cols}
-					</div>
-					<div>
-						{#if isSolved}
-							Solved ✨
-						{/if}
-					</div>
-					<div class="muted" style="flex:1; text-align: right;">
-						{actionCount} move{#if actionCount > 1}s{/if} | {Math.floor(durationInSec / 60)
-							.toString()
-							.padStart(2, '0')}:{(durationInSec % 60).toString().padStart(2, '0')}
-					</div>
+			<div class="toolbar">
+				<div class="muted" style="flex:1;">
+					{rows} x {cols}
 				</div>
-			</Section>
+				<div>
+					{#if isSolved}
+						Solved ✨
+					{/if}
+				</div>
+				<div class="muted" style="flex:1; text-align: right;">
+					{actionCount} move{#if actionCount > 1}s{/if} | {Math.floor(durationInSec / 60)
+						.toString()
+						.padStart(2, '0')}:{(durationInSec % 60).toString().padStart(2, '0')}
+				</div>
+			</div>
 		{:catch}
-			<Section>Failed to load image...</Section>
+			Failed to load image...
 		{/await}
 	</Content>
-
-	<Footer />
 </Container>
 
 <style>

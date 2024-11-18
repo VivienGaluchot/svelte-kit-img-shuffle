@@ -16,7 +16,7 @@
 <style>
 	div {
 		margin: auto;
-		min-height: calc(100% - 2rem);
+		height: calc(100% - 2rem);
 		width: calc(100% - 2rem);
 		display: flex;
 		flex-direction: column;
