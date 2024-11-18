@@ -76,40 +76,41 @@
 	Operation cannot be undone.
 </Confirm>
 
-<div class="box">
-	<a class="card" class:complete={$isComplete === true} href={getUrl(tileCount)}>
-		{#await gs.getImage(image) then image}
+<div class="card">
+	{#await gs.getImage(image) then image}
+		<a
+			class="link"
+			class:complete={$isComplete === true}
+			href={getUrl(tileCount)}
+			aria-label={image.name}
+		>
 			<div class="preview">
 				<div class="preview-bg" style="background-image: url({image.url});"></div>
 			</div>
-			<div class="bar">
-				<div class="name">{image.name}</div>
-				<div class="tag">
-					{#if $isComplete === true}
-						<i class="fa-solid fa-circle-check"></i>
-					{/if}
-				</div>
+		</a>
+		{#if isCustom}
+			<div class="top-bar">
+				<!-- svelte-ignore a11y_consider_explicit_label -->
+				<button class="del-btn" onclick={deleteImage}><i class="fa-solid fa-trash"></i></button>
 			</div>
-		{/await}
-	</a>
-	{#if isCustom}
-		<!-- svelte-ignore a11y_consider_explicit_label -->
-		<button class="del-btn" onclick={deleteImage}><i class="fa-solid fa-trash"></i></button>
-	{/if}
+		{/if}
+		<div class="bottom-bar">
+			<div class="name">{image.name}</div>
+			<div class="tag">
+				{#if $isComplete === true}
+					<i class="fa-solid fa-circle-check"></i>
+				{/if}
+			</div>
+		</div>
+	{/await}
 </div>
 
 <style>
 	.card {
 		position: relative;
-		text-decoration: none;
-		padding: 0;
-		border-radius: 0.5rem;
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-		transition: 100ms;
-		outline: 0.3rem solid transparent;
 		overflow: hidden;
+		outline: 0.3rem solid transparent;
+		border-radius: 0.5rem;
 	}
 
 	.card:hover {
@@ -122,25 +123,13 @@
 		outline: 0.4rem solid rgba(255, 255, 255, 0.1);
 	}
 
-	.bar {
-		position: absolute;
-		background-color: rgba(125, 125, 125, 0.2);
-		backdrop-filter: blur(0.2rem);
-		bottom: 0;
-		left: 0;
-		right: 0;
-		padding: 0.5rem;
+	.link {
+		text-decoration: none;
+		padding: 0;
 		display: flex;
-		justify-content: space-between;
-		flex-shrink: 1;
-		max-width: 100%;
-		gap: 1rem;
-		overflow: hidden;
+		flex-direction: column;
+		gap: 0.5rem;
 		transition: 100ms;
-	}
-
-	.card:hover .bar {
-		bottom: -3rem;
 	}
 
 	.preview {
@@ -162,6 +151,32 @@
 		transition: 100ms;
 	}
 
+	.bottom-bar,
+	.del-btn {
+		position: absolute;
+		background-color: rgba(125, 125, 125, 0.2);
+		backdrop-filter: blur(0.2rem);
+	}
+
+	.bottom-bar {
+		padding: 0.5rem;
+		display: flex;
+		justify-content: space-between;
+		flex-shrink: 1;
+		max-width: 100%;
+		gap: 1rem;
+		transition: 100ms;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		visibility: visible;
+	}
+
+	.card:hover .bottom-bar {
+		bottom: -3rem;
+		visibility: hidden;
+	}
+
 	.complete .preview-bg {
 		filter: none;
 	}
@@ -174,21 +189,19 @@
 		direction: rtl;
 	}
 
-	.box {
-		position: relative;
-	}
-
 	.del-btn {
-		position: absolute;
-		top: 0;
-		right: 0;
-		z-index: 1;
+		top: -2rem;
 		visibility: hidden;
+		right: 0.2rem;
+		z-index: 1;
 		border-radius: 0.5rem;
 		color: rgb(255, 76, 76);
+		transition: 100ms;
+		text-align: center;
 	}
 
-	.box:hover .del-btn {
+	.card:hover .del-btn {
+		top: 0.2rem;
 		visibility: visible;
 	}
 </style>

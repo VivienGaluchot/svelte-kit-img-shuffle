@@ -1,7 +1,9 @@
 <script lang="ts">
 	import * as paths from '$app/paths';
+	import type { Snippet } from 'svelte';
+
 	interface Props {
-		children?: import('svelte').Snippet;
+		children?: Snippet;
 	}
 
 	let { children }: Props = $props();

@@ -1,12 +1,16 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	interface Props {
-		children?: import('svelte').Snippet;
+		children?: Snippet;
+		// css gap between section elements
+		gap?: string;
 	}
 
-	let { children }: Props = $props();
+	let { children, gap = '1rem' }: Props = $props();
 </script>
 
-<section>
+<section style="gap: {gap};">
 	{@render children?.()}
 </section>
 
@@ -17,6 +21,5 @@
 		padding: 1rem;
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
 	}
 </style>

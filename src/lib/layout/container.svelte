@@ -1,7 +1,9 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	interface Props {
 		maxWidth?: string;
-		children?: import('svelte').Snippet;
+		children?: Snippet;
 	}
 
 	let { maxWidth = 'unset', children }: Props = $props();

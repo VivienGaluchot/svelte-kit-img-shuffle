@@ -1,34 +1,36 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { liveQuery } from 'dexie';
 	import * as im from '$lib/image';
 	import * as gs from '$lib/gameSetting';
 	import * as db from '$lib/db';
-	import GameCard from './gameCard.svelte';
 	import Header from '$lib/layout/header.svelte';
 	import Footer from '$lib/layout/footer.svelte';
 	import Container from '$lib/layout/container.svelte';
 	import Content from '$lib/layout/content.svelte';
 	import Section from '$lib/layout/section.svelte';
+	import GameCard from './gameCard.svelte';
+
+	// page
+	// ---------------------------
+
+	const tab: 'official' | 'custom' = $derived.by(() => {
+		const t = $page.url.searchParams.get('t');
+		switch (t) {
+			case 'official':
+			default:
+				return 'official';
+			case 'custom':
+				return 'custom';
+		}
+	});
 
 	// difficulty
 	// ---------------------------
 
-	function getTileCount(difficulty: db.Difficulty): number {
-		switch (difficulty) {
-			case 'easy':
-				return 40;
-			case 'medium':
-				return 80;
-			case 'hard':
-				return 120;
-			case 'super-hard':
-				return 240;
-		}
-	}
-
 	let difficulty: db.Difficulty = $state(db.ldb.getDifficulty());
 
-	let tileCount: number = $derived(getTileCount(difficulty));
+	const tileCount: number = $derived(gs.getTileCount(difficulty));
 
 	$effect(() => {
 		db.ldb.setDifficulty(difficulty);
@@ -42,7 +44,7 @@
 		staticImageSettings.push({ kind: 'static', key });
 	}
 
-	let fileInput: HTMLInputElement;
+	let fileInput: HTMLInputElement | null = $state(null);
 	let fileInputValue: FileList | null = $state(null);
 
 	// Unlock super hard when all the static images have been completed in hard mode
@@ -51,7 +53,7 @@
 			let keys = await db.idb.gameCompletes
 				.orderBy('settings.image.key')
 				.filter((x) => {
-					return x.settings.tileCount == getTileCount('hard');
+					return x.settings.tileCount == gs.getTileCount('hard');
 				})
 				.uniqueKeys();
 			return keys.length == Object.keys(im.staticImages).length;
@@ -110,39 +112,47 @@
 		</div>
 	</Header>
 	<Content>
-		<Section>
-			<h2>Official images</h2>
-			<div class="grid">
-				{#each staticImageSettings as image (image.key)}
-					<GameCard {image} {tileCount} />
-				{/each}
+		<Section gap="2rem">
+			<div class="nav">
+				<ul class="activatable">
+					<li>
+						<a href="/" class="button" class:active={tab == 'official'}>Official images</a>
+					</li>
+					<li>
+						<a href="/?t=custom" class="button" class:active={tab == 'custom'}>Custom images</a>
+					</li>
+				</ul>
+				<ul>
+					{#if tab == 'custom'}
+						<li>
+							<button onclick={() => fileInput?.click()} aria-label="add image">
+								<i class="fa-solid fa-arrow-up-from-bracket"></i>
+							</button>
+							<input
+								bind:this={fileInput}
+								hidden
+								type="file"
+								accept="image/*"
+								bind:files={fileInputValue}
+							/>
+						</li>
+					{/if}
+				</ul>
 			</div>
-		</Section>
 
-		<Section>
-			<div class="flex-h">
-				<h2>Custom images</h2>
-				<div>
-					<!-- svelte-ignore a11y_consider_explicit_label -->
-					<button onclick={() => fileInput.click()}>
-						<i class="fa-solid fa-arrow-up-from-bracket"></i>
-					</button>
-					<input
-						bind:this={fileInput}
-						hidden
-						type="file"
-						accept="image/*"
-						bind:files={fileInputValue}
-					/>
-				</div>
-			</div>
-			{#if $customImages && $customImages.length > 0}
-				<div class="grid">
-					{#each $customImages as image (image.id)}
+			<div class="grid">
+				{#if tab == 'official'}
+					{#each staticImageSettings as image (image.key)}
 						<GameCard {image} {tileCount} />
 					{/each}
-				</div>
-			{/if}
+				{:else if tab == 'custom'}
+					{#if $customImages && $customImages.length > 0}
+						{#each $customImages as image (image.id)}
+							<GameCard {image} {tileCount} />
+						{/each}
+					{/if}
+				{/if}
+			</div>
 		</Section>
 	</Content>
 	<Footer />
@@ -163,10 +173,32 @@
 		gap: 1rem;
 	}
 
-	h2 {
+	.nav {
+		display: flex;
+		gap: 1rem;
+		justify-content: space-between;
+		flex-wrap: wrap;
+	}
+
+	.nav ul {
+		display: flex;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.nav li {
+		margin: 0;
+	}
+
+	.nav a {
 		font-size: 1.1rem;
 		font-weight: lighter;
-		padding: 0;
-		margin: 0;
+	}
+
+	.activatable a:not(.active):not(:hover) {
+		background-color: transparent;
 	}
 </style>

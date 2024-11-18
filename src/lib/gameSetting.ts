@@ -1,5 +1,6 @@
+import { PUBLIC_VERSION } from '$env/static/public';
 import * as im from '$lib/image';
-import { idb } from '$lib/db';
+import * as db from '$lib/db';
 
 export interface StaticImageSetting {
 	// play with static image from `im.staticImages`
@@ -70,7 +71,7 @@ export async function getImage(settings: ImageSetting): Promise<im.ImageResource
 		}
 		return image;
 	} else {
-		const image = await idb.customImages.get(settings.id);
+		const image = await db.idb.customImages.get(settings.id);
 		if (!image) {
 			throw new Error(`unknown image key '${settings.id}'`);
 		}
@@ -78,5 +79,18 @@ export async function getImage(settings: ImageSetting): Promise<im.ImageResource
 			name: image.name,
 			url: URL.createObjectURL(image.blob).toString()
 		};
+	}
+}
+
+export function getTileCount(difficulty: db.Difficulty): number {
+	switch (difficulty) {
+		case 'easy':
+			return PUBLIC_VERSION == 'dev' ? 4 : 40;
+		case 'medium':
+			return 80;
+		case 'hard':
+			return 120;
+		case 'super-hard':
+			return 240;
 	}
 }
