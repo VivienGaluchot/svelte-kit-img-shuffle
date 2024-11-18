@@ -95,7 +95,7 @@
 	<title>Picture slicer</title>
 </svelte:head>
 
-<Container maxWidth="40rem">
+<Container maxWidth="60rem">
 	<Header>
 		<div class="flex-h">
 			Difficulty

@@ -100,15 +100,16 @@
 
 <style>
 	.card {
+		position: relative;
 		text-decoration: none;
-		padding: none;
+		padding: 0;
 		border-radius: 0.5rem;
-		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
 		transition: 100ms;
 		outline: 0.3rem solid transparent;
+		overflow: hidden;
 	}
 
 	.card:hover {
@@ -122,20 +123,29 @@
 	}
 
 	.bar {
+		position: absolute;
+		background-color: rgba(125, 125, 125, 0.2);
+		backdrop-filter: blur(0.2rem);
+		bottom: 0;
+		left: 0;
+		right: 0;
+		padding: 0.5rem;
 		display: flex;
 		justify-content: space-between;
 		flex-shrink: 1;
 		max-width: 100%;
 		gap: 1rem;
+		overflow: hidden;
+		transition: 100ms;
 	}
 
-	.bar .tag {
-		opacity: 0.5;
+	.card:hover .bar {
+		bottom: -3rem;
 	}
 
 	.preview {
 		width: 100%;
-		height: 5rem;
+		aspect-ratio: 0.8;
 		border-radius: 0.5rem;
 		overflow: hidden;
 	}
