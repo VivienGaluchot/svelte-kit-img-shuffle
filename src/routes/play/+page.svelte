@@ -12,6 +12,9 @@
 	import Section from '$lib/layout/section.svelte';
 	import Game from './game.svelte';
 
+	// settings
+	// ---------------------------
+
 	const gameSettings = gs.decodeGameSettingsFromUrl($page.url);
 	const tileCount = gameSettings.tileCount;
 	const seed = gameSettings.seed;
@@ -22,6 +25,14 @@
 	let rows: number = $state(0);
 	let cols: number = $state(0);
 	let isSolved: boolean = $state(false);
+
+	// urls
+	// ---------------------------
+
+	const backUrl = new URL(`${paths.base}/`, $page.url);
+	if (gameSettings.image.kind == 'custom') {
+		backUrl.searchParams.set('t', 'custom');
+	}
 
 	// share
 	// ---------------------------
@@ -110,7 +121,7 @@
 				</button>
 			{/if}
 			<div>
-				<a class="button" href={paths.base + '/'}>Back</a>
+				<a class="button" href={backUrl.toString()}>Back</a>
 			</div>
 		</div>
 	</Header>

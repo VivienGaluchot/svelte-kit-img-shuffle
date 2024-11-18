@@ -11,19 +11,24 @@
 	import Section from '$lib/layout/section.svelte';
 	import GameCard from './gameCard.svelte';
 
-	// page
+	// urls
 	// ---------------------------
 
 	const tab: 'official' | 'custom' = $derived.by(() => {
 		const t = $page.url.searchParams.get('t');
 		switch (t) {
-			case 'official':
-			default:
-				return 'official';
 			case 'custom':
 				return 'custom';
+			default:
+				return 'official';
 		}
 	});
+
+	const officialUrl: URL = new URL($page.url);
+	officialUrl.searchParams.delete('t');
+
+	const customUrl: URL = new URL($page.url);
+	customUrl.searchParams.set('t', 'custom');
 
 	// difficulty
 	// ---------------------------
@@ -116,10 +121,14 @@
 			<div class="nav">
 				<ul class="activatable">
 					<li>
-						<a href="/" class="button" class:active={tab == 'official'}>Official images</a>
+						<a href={officialUrl.toString()} class="button" class:active={tab == 'official'}
+							>Official images</a
+						>
 					</li>
 					<li>
-						<a href="/?t=custom" class="button" class:active={tab == 'custom'}>Custom images</a>
+						<a href={customUrl.toString()} class="button" class:active={tab == 'custom'}
+							>Custom images</a
+						>
 					</li>
 				</ul>
 				<ul>
