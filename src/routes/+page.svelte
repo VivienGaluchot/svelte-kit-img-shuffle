@@ -10,6 +10,7 @@
 	import Content from '$lib/layout/content.svelte';
 	import Section from '$lib/layout/section.svelte';
 	import GameCard from './gameCard.svelte';
+	import * as homeUrl from './url';
 
 	// urls
 	// ---------------------------
@@ -24,11 +25,8 @@
 		}
 	});
 
-	const officialUrl: URL = new URL($page.url);
-	officialUrl.searchParams.delete('t');
-
-	const customUrl: URL = new URL($page.url);
-	customUrl.searchParams.set('t', 'custom');
+	const officialUrl = homeUrl.get('official', $page.url);
+	const customUrl = homeUrl.get('custom', $page.url);
 
 	// difficulty
 	// ---------------------------

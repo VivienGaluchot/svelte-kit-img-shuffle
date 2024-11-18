@@ -34,5 +34,6 @@
 		justify-content: space-between;
 		gap: 1rem;
 		opacity: 0.8;
+		align-items: center;
 	}
 </style>

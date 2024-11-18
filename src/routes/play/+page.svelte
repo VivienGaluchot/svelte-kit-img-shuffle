@@ -11,6 +11,7 @@
 	import Header from '$lib/layout/header.svelte';
 	import Section from '$lib/layout/section.svelte';
 	import Game from './game.svelte';
+	import * as homeUrl from '../url';
 
 	// settings
 	// ---------------------------
@@ -29,10 +30,16 @@
 	// urls
 	// ---------------------------
 
-	const backUrl = new URL(`${paths.base}/`, $page.url);
-	if (gameSettings.image.kind == 'custom') {
-		backUrl.searchParams.set('t', 'custom');
+	let tab: homeUrl.Tab;
+	switch (gameSettings.image.kind) {
+		case 'static':
+			tab = 'official';
+			break;
+		case 'custom':
+			tab = 'custom';
+			break;
 	}
+	const backUrl = homeUrl.get(tab, $page.url);
 
 	// share
 	// ---------------------------
