@@ -113,16 +113,6 @@
 		border-radius: 0.5rem;
 	}
 
-	.card:hover {
-		background-color: rgba(255, 255, 255, 0.1);
-		outline: 0.3rem solid rgba(255, 255, 255, 0.1);
-	}
-
-	.card:active {
-		background-color: rgba(255, 255, 255, 0.1);
-		outline: 0.4rem solid rgba(255, 255, 255, 0.1);
-	}
-
 	.link {
 		text-decoration: none;
 		padding: 0;
