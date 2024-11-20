@@ -165,6 +165,7 @@
 	}
 
 	function onTouchMove(event: TouchEvent): void {
+		event.preventDefault();
 		for (const touch of event.changedTouches) {
 			if (touch.identifier == touchId) {
 				dragMove({ x: touch.clientX, y: touch.clientY });
