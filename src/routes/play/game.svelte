@@ -138,14 +138,17 @@
 	// ---------------------------
 
 	function onMouseDown(event: MouseEvent): void {
+		event.preventDefault();
 		dragStart({ x: event.clientX, y: event.clientY });
 	}
 
 	function onMouseMove(event: MouseEvent): void {
+		event.preventDefault();
 		dragMove({ x: event.clientX, y: event.clientY });
 	}
 
 	function onMouseUp(event: MouseEvent): void {
+		event.preventDefault();
 		dragEnd({ x: event.clientX, y: event.clientY });
 	}
 
@@ -155,6 +158,7 @@
 	let touchId: number | undefined = undefined;
 
 	function onTouchStart(event: TouchEvent): void {
+		event.preventDefault();
 		if (touchId == undefined) {
 			const touch = event.changedTouches[0];
 			if (touch) {
@@ -174,6 +178,7 @@
 	}
 
 	function onTouchEnd(event: TouchEvent): void {
+		event.preventDefault();
 		for (const touch of event.changedTouches) {
 			if (touch.identifier == touchId) {
 				touchId = undefined;
@@ -184,6 +189,7 @@
 	}
 
 	function onTouchCancel(event: TouchEvent): void {
+		event.preventDefault();
 		for (const touch of event.changedTouches) {
 			if (touch.identifier == touchId) {
 				touchId = undefined;
@@ -281,7 +287,6 @@
 	.stack {
 		position: relative;
 		overflow: hidden;
-		border-radius: 0.2rem;
 		background: rgba(0, 0, 0, 0.2);
 		flex-grow: 1;
 		border-radius: 0.5rem;
