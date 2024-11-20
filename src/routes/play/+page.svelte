@@ -22,6 +22,11 @@
 	const imageResource = gs.getImage(gameSettings.image);
 	const imagePromise = imageResource.then(im.toPuzzleImage);
 
+	let title: string = $state('');
+	imageResource.then((image) => {
+		title = image.name;
+	});
+
 	let actionCount: number = $state(0);
 	let rows: number = $state(0);
 	let cols: number = $state(0);
@@ -107,15 +112,8 @@
 </svelte:head>
 
 <Container>
-	<Header>
+	<Header {title}>
 		<div class="toolbar">
-			<div class="img-name">
-				{#await imageResource}
-					...
-				{:then imageResource}
-					{imageResource.name}
-				{/await}
-			</div>
 			{#if isShareable}
 				<button
 					class="share-btn"
@@ -123,13 +121,11 @@
 					class:failed={shareState == 'failed'}
 					onclick={share}
 				>
-					Share link
+					Share
 					<i class="fa-solid fa-copy"></i>
 				</button>
 			{/if}
-			<div>
-				<a class="button" href={backUrl.toString()}>Back</a>
-			</div>
+			<a class="button" href={backUrl.toString()}>Back</a>
 		</div>
 	</Header>
 
@@ -161,14 +157,6 @@
 </Container>
 
 <style>
-	.img-name {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		max-width: 30rem;
-		padding: 0.5rem;
-	}
-
 	.muted {
 		opacity: 0.7;
 		font-weight: lighter;

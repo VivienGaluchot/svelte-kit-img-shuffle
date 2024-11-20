@@ -101,41 +101,95 @@
 		getSlotSize: getSlotSize.call
 	});
 
-	// Drag
+	// Generic events
 	// ---------------------------
 
-	function onMouseDown(event: MouseEvent) {
+	function dragStart(clientPos: lm.Vec2d) {
 		if (isSolved) return;
 		if (matrix.isDragging()) {
 			// handle edge cases where 2 mouse down are called without a mouse up in between
 			matrix.cancelDrag();
 		} else {
-			const mousePos = { x: event.clientX, y: event.clientY };
-			const pos = slotPosFromPoint(mousePos);
+			const pos = slotPosFromPoint(clientPos);
 			if (pos) {
-				matrix.setDragFrom(pos, mousePos);
+				matrix.setDragFrom(pos, clientPos);
 			}
 		}
 	}
 
-	function onMouseMove(event: MouseEvent) {
+	function dragMove(clientPos: lm.Vec2d) {
 		if (isSolved) return;
 		if (!matrix.isDragging()) return;
-		const mousePos = { x: event.clientX, y: event.clientY };
-		matrix.dragUpdate(mousePos);
+		matrix.dragUpdate(clientPos);
 	}
 
-	function onMouseUp(event: MouseEvent) {
+	function dragEnd(clientPos: lm.Vec2d) {
 		if (isSolved) return;
 		if (!matrix.isDragging()) return;
-		const mousePos = { x: event.clientX, y: event.clientY };
-		const pos = slotPosFromPoint(mousePos);
+		const pos = slotPosFromPoint(clientPos);
 		const hasMoved = matrix.unsetDragFrom(pos);
 		if (hasMoved) {
 			actionCount += 1;
 		}
-
 		isSolved = matrix.isSolved();
+	}
+
+	// Mouse events
+	// ---------------------------
+
+	function onMouseDown(event: MouseEvent): void {
+		dragStart({ x: event.clientX, y: event.clientY });
+	}
+
+	function onMouseMove(event: MouseEvent): void {
+		dragMove({ x: event.clientX, y: event.clientY });
+	}
+
+	function onMouseUp(event: MouseEvent): void {
+		dragEnd({ x: event.clientX, y: event.clientY });
+	}
+
+	// Touch events
+	// ---------------------------
+
+	let touchId: number | undefined = undefined;
+
+	function onTouchStart(event: TouchEvent): void {
+		if (touchId == undefined) {
+			const touch = event.changedTouches[0];
+			if (touch) {
+				touchId = touch.identifier;
+				dragStart({ x: touch.clientX, y: touch.clientY });
+			}
+		}
+	}
+
+	function onTouchMove(event: TouchEvent): void {
+		for (const touch of event.changedTouches) {
+			if (touch.identifier == touchId) {
+				dragMove({ x: touch.clientX, y: touch.clientY });
+			}
+		}
+	}
+
+	function onTouchEnd(event: TouchEvent): void {
+		for (const touch of event.changedTouches) {
+			if (touch.identifier == touchId) {
+				touchId = undefined;
+				dragEnd({ x: touch.clientX, y: touch.clientY });
+				break;
+			}
+		}
+	}
+
+	function onTouchCancel(event: TouchEvent): void {
+		for (const touch of event.changedTouches) {
+			if (touch.identifier == touchId) {
+				touchId = undefined;
+				dragEnd({ x: touch.clientX, y: touch.clientY });
+				break;
+			}
+		}
 	}
 
 	// Main
@@ -174,16 +228,23 @@
 	});
 </script>
 
-<svelte:window onmouseup={onMouseUp} onmousemove={onMouseMove} onbeforeunload={onBeforeUnload} />
+<svelte:window on:beforeunload={onBeforeUnload} />
 
 <!--
 	TODO
 	- multi player / local shuffle
 	- matrix history, integrity check (rollback in case of invalid move)
-	- z layer priority
-	- tile components for optimizations ?
  -->
-<div class="stack">
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div
+	class="stack"
+	onmouseup={onMouseUp}
+	onmousemove={onMouseMove}
+	ontouchstart={onTouchStart}
+	ontouchend={onTouchEnd}
+	ontouchcancel={onTouchCancel}
+	ontouchmove={onTouchMove}
+>
 	<div class="grid" style={matrix.style()} bind:this={slotGrid}>
 		{#each matrix.matrix as tile, index (tile)}
 			<div

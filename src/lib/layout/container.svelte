@@ -9,19 +9,24 @@
 	let { maxWidth = 'unset', children }: Props = $props();
 </script>
 
-<div style="max-width: {maxWidth};">
+<div class="container" style="max-width: {maxWidth};">
 	{@render children?.()}
 </div>
 
 <style>
-	div {
+	.container {
 		margin: auto;
-		height: calc(100% - 2rem);
-		width: calc(100% - 2rem);
+		height: 100%;
+		width: 100%;
+		box-sizing: border-box;
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
 		gap: 1rem;
 		padding: 1rem;
+
+		@media (max-width: 30rem) {
+			padding: 0.5rem;
+		}
 	}
 </style>

@@ -23,5 +23,9 @@
 		gap: 1rem;
 		min-height: 5rem;
 		padding: 1rem;
+
+		@media (max-width: 30rem) {
+			padding: 0.5rem;
+		}
 	}
 </style>

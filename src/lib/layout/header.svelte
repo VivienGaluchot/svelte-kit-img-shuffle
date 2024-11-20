@@ -4,15 +4,16 @@
 
 	interface Props {
 		children?: Snippet;
+		title?: string;
 	}
 
-	let { children }: Props = $props();
+	let { children, title = 'Picture slicer' }: Props = $props();
 </script>
 
 <header>
 	<div class="logo-bar">
 		<img src="{paths.base}/favicon.png" alt="logo" />
-		<h1>Picture slicer</h1>
+		<h1>{title}</h1>
 	</div>
 	{@render children?.()}
 </header>
@@ -21,18 +22,21 @@
 	header {
 		display: flex;
 		justify-content: space-between;
-	}
-
-	h1 {
-		font-size: 1.5rem;
-		margin: 0;
+		flex-wrap: wrap;
+		gap: 0.5rem;
 	}
 
 	.logo-bar {
+		min-height: 2.5rem;
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
 		text-decoration: none;
+	}
+
+	h1 {
+		font-size: 1.2rem;
+		margin: 0;
 	}
 
 	.logo-bar img {

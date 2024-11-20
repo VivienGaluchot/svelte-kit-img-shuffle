@@ -103,7 +103,6 @@
 <Container maxWidth="60rem">
 	<Header>
 		<div class="flex-h">
-			Difficulty
 			<select bind:value={difficulty}>
 				<option value={'easy'} selected={difficulty == 'easy'}>Easy</option>
 				<option value={'medium'} selected={difficulty == 'medium'}>Medium</option>
@@ -129,8 +128,8 @@
 					>
 				</li>
 			</ul>
-			<ul>
-				{#if tab == 'custom'}
+			{#if tab == 'custom'}
+				<ul>
 					<li>
 						<button onclick={() => fileInput?.click()} aria-label="add image">
 							<i class="fa-solid fa-arrow-up-from-bracket"></i>
@@ -143,8 +142,8 @@
 							bind:files={fileInputValue}
 						/>
 					</li>
-				{/if}
-			</ul>
+				</ul>
+			{/if}
 		</div>
 
 		<div class="grid">
