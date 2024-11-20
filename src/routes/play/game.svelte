@@ -109,11 +109,10 @@
 		if (matrix.isDragging()) {
 			// handle edge cases where 2 mouse down are called without a mouse up in between
 			matrix.cancelDrag();
-		} else {
-			const pos = slotPosFromPoint(clientPos);
-			if (pos) {
-				matrix.setDragFrom(pos, clientPos);
-			}
+		}
+		const pos = slotPosFromPoint(clientPos);
+		if (pos) {
+			matrix.setDragFrom(pos, clientPos);
 		}
 	}
 
@@ -159,17 +158,17 @@
 
 	function onTouchStart(event: TouchEvent): void {
 		event.preventDefault();
-		if (touchId == undefined) {
-			const touch = event.changedTouches[0];
-			if (touch) {
-				touchId = touch.identifier;
-				dragStart({ x: touch.clientX, y: touch.clientY });
-			}
+		if (touchId != undefined) return;
+		const touch = event.changedTouches[0];
+		if (touch) {
+			touchId = touch.identifier;
+			dragStart({ x: touch.clientX, y: touch.clientY });
 		}
 	}
 
 	function onTouchMove(event: TouchEvent): void {
 		event.preventDefault();
+		if (touchId == undefined) return;
 		for (const touch of event.changedTouches) {
 			if (touch.identifier == touchId) {
 				dragMove({ x: touch.clientX, y: touch.clientY });
@@ -179,6 +178,7 @@
 
 	function onTouchEnd(event: TouchEvent): void {
 		event.preventDefault();
+		if (touchId == undefined) return;
 		for (const touch of event.changedTouches) {
 			if (touch.identifier == touchId) {
 				touchId = undefined;
@@ -190,6 +190,7 @@
 
 	function onTouchCancel(event: TouchEvent): void {
 		event.preventDefault();
+		if (touchId == undefined) return;
 		for (const touch of event.changedTouches) {
 			if (touch.identifier == touchId) {
 				touchId = undefined;
@@ -197,6 +198,15 @@
 				break;
 			}
 		}
+	}
+
+	function addTouchListener(element: HTMLDivElement): void {
+		// add events via action to set the passive flag to true
+		// in order to call prevent default in touch events
+		element.addEventListener('touchstart', onTouchStart, { passive: false });
+		element.addEventListener('touchend', onTouchEnd, { passive: false });
+		element.addEventListener('touchcancel', onTouchCancel, { passive: false });
+		element.addEventListener('touchmove', onTouchMove, { passive: false });
 	}
 
 	// Main
@@ -243,16 +253,16 @@
 	- matrix history, integrity check (rollback in case of invalid move)
  -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div
-	class="stack"
-	onmouseup={onMouseUp}
-	onmousemove={onMouseMove}
-	ontouchstart={onTouchStart}
-	ontouchend={onTouchEnd}
-	ontouchcancel={onTouchCancel}
-	ontouchmove={onTouchMove}
->
-	<div class="grid" style={matrix.style()} bind:this={slotGrid}>
+<div class="stack">
+	<div
+		class="grid"
+		style={matrix.style()}
+		bind:this={slotGrid}
+		onmousedown={onMouseDown}
+		onmouseup={onMouseUp}
+		onmousemove={onMouseMove}
+		use:addTouchListener
+	>
 		{#each matrix.matrix as tile, index (tile)}
 			<div
 				class="slot"
@@ -270,15 +280,9 @@
 			class:bottom-ok={tile.isOkWithNext(DIR_2D_BOTTOM)}
 			class:left-ok={tile.isOkWithNext(DIR_2D_LEFT)}
 			class:right-ok={tile.isOkWithNext(DIR_2D_RIGHT)}
-			on:mousedown={onMouseDown}
 			style={tile.style()}
 		/> -->
-			<div
-				class="tile"
-				class:drag-from={tile.isDragFrom()}
-				onmousedown={onMouseDown}
-				style={tile.style}
-			></div>
+			<div class="tile" class:drag-from={tile.isDragFrom()} style={tile.style}></div>
 		{/each}
 	</div>
 </div>
