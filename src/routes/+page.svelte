@@ -8,7 +8,6 @@
 	import Footer from '$lib/layout/footer.svelte';
 	import Container from '$lib/layout/container.svelte';
 	import Content from '$lib/layout/content.svelte';
-	import Section from '$lib/layout/section.svelte';
 	import GameCard from './gameCard.svelte';
 	import * as homeUrl from './url';
 

@@ -1,15 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import * as paths from '$app/paths';
 	import { page } from '$app/stores';
 	import * as im from '$lib/image';
 	import * as gs from '$lib/gameSetting';
 	import { idb } from '$lib/db';
 	import Container from '$lib/layout/container.svelte';
 	import Content from '$lib/layout/content.svelte';
-	import Footer from '$lib/layout/footer.svelte';
 	import Header from '$lib/layout/header.svelte';
-	import Section from '$lib/layout/section.svelte';
+	import { t, pluralize } from '$lib/i18n';
 	import Game from './game.svelte';
 	import * as homeUrl from '../url';
 
@@ -105,9 +103,9 @@
 
 <svelte:head>
 	{#await imagePromise}
-		<title>Picture slicer</title>
+		<title>{t`Picture slicer`}</title>
 	{:then image}
-		<title>{image.name} - Picture slicer</title>
+		<title>{image.name} - {t`Picture slicer`}</title>
 	{/await}
 </svelte:head>
 
@@ -121,17 +119,17 @@
 					class:failed={shareState == 'failed'}
 					onclick={share}
 				>
-					Share
+					{t`Share`}
 					<i class="fa-solid fa-copy"></i>
 				</button>
 			{/if}
-			<a class="button" href={backUrl.toString()}>Back</a>
+			<a class="button" href={backUrl.toString()}>{t`Back`}</a>
 		</div>
 	</Header>
 
 	<Content>
 		{#await imagePromise}
-			Loading image...
+			{t`Loading image...`}
 		{:then image}
 			<Game bind:rows bind:cols bind:actionCount bind:isSolved {tileCount} {seed} {image} />
 
@@ -141,17 +139,18 @@
 				</div>
 				<div>
 					{#if isSolved}
-						Solved ✨
+						{t`Solved ✨`}
 					{/if}
 				</div>
 				<div class="muted" style="flex:1; text-align: right;">
-					{actionCount} move{#if actionCount > 1}s{/if} | {Math.floor(durationInSec / 60)
+					{actionCount}
+					{pluralize('move', actionCount)} | {Math.floor(durationInSec / 60)
 						.toString()
 						.padStart(2, '0')}:{(durationInSec % 60).toString().padStart(2, '0')}
 				</div>
 			</div>
 		{:catch}
-			Failed to load image...
+			{t`Failed to load image...`}
 		{/await}
 	</Content>
 </Container>
