@@ -9,6 +9,7 @@ import image6 from '$lib/assets/tara-mae-miller-SzI9z8snVjk-unsplash.jpg';
 import image7 from '$lib/assets/valeria-kodra-2mj8Yu6Vftc-unsplash.jpg';
 import image8 from '$lib/assets/360floralflaves-SNQfkUNHWlA-unsplash.jpg';
 import image9 from '$lib/assets/ming-jun-tan--FC5Ozeetuw-unsplash.jpg';
+import image10 from '$lib/assets/mikhail-vasilyev-NodtnCsLdTE-unsplash.jpg';
 
 export type ImageResource = {
 	// image name
@@ -44,7 +45,8 @@ export const staticImages: Record<string, ImageResource> = {
 	tag: { name: 'Tag', url: image6 },
 	cosy: { name: 'Cozy', url: image7 },
 	nut: { name: 'Nut', url: image8 },
-	bucks: { name: 'Bucks', url: image9 }
+	bucks: { name: 'Bucks', url: image9 },
+	image10: { name: 'Cat', url: image10 }
 };
 
 export function splitInCell(size: lm.Vec2d, n: number): lm.Vec2d {
