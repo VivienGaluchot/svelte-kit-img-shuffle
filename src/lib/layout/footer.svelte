@@ -1,9 +1,10 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import { PUBLIC_VERSION } from '$env/static/public';
 </script>
 
 <footer>
-	<div>
+	<div class="bar">
 		<a
 			class="button"
 			href="https://github.com/VivienGaluchot/svelte-kit-img-shuffle"
@@ -17,17 +18,20 @@
 			href="https://github.com/VivienGaluchot/svelte-kit-img-shuffle/issues"
 			target="_blank"
 		>
-			<i class="fa-solid fa-bug"></i> Found a bug ?
+			<i class="fa-solid fa-bug"></i>
+			{m.soft_away_wren_achieve()}
 		</a>
 	</div>
-	<iframe
-		src="https://github.com/sponsors/VivienGaluchot/button"
-		title="Sponsor VivienGaluchot"
-		height="32"
-		width="114"
-		class="btn"
-		style="border: 0; border-radius: 6px;"
-	></iframe>
+	<div class="bar">
+		<iframe
+			src="https://github.com/sponsors/VivienGaluchot/button"
+			title="Sponsor VivienGaluchot"
+			height="32"
+			width="114"
+			class="btn"
+			style="border: 0; border-radius: 6px;"
+		></iframe>
+	</div>
 </footer>
 
 <style>
@@ -37,6 +41,11 @@
 	}
 	iframe {
 		align-self: center;
+	}
+	.bar {
+		display: flex;
+		justify-content: space-between;
+		gap: 0.5rem;
 	}
 	footer {
 		text-align: center;

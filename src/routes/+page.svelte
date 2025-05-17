@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
+	import { setLocale, getLocale, type Locale, locales } from '$lib//paraglide/runtime.js';
 	import { page } from '$app/stores';
 	import { liveQuery } from 'dexie';
 	import * as im from '$lib/image';
@@ -8,7 +10,6 @@
 	import Footer from '$lib/layout/footer.svelte';
 	import Container from '$lib/layout/container.svelte';
 	import Content from '$lib/layout/content.svelte';
-	import Section from '$lib/layout/section.svelte';
 	import GameCard from './gameCard.svelte';
 	import * as homeUrl from './url';
 
@@ -27,6 +28,20 @@
 
 	const officialUrl = homeUrl.get('official', $page.url);
 	const customUrl = homeUrl.get('custom', $page.url);
+
+	// locale
+	// ---------------------------
+
+	let locale: Locale = $state(getLocale());
+
+	const localeFullName: Record<Locale, String> = {
+		en: 'English',
+		fr: 'Français'
+	};
+
+	$effect(() => {
+		setLocale(locale);
+	});
 
 	// difficulty
 	// ---------------------------
@@ -103,12 +118,24 @@
 <Container maxWidth="60rem">
 	<Header>
 		<div class="flex-h">
+			<i class="fa-solid fa-gears"></i>
+			<select bind:value={locale}>
+				{#each locales as loc}
+					<option value={loc}>{localeFullName[loc]}</option>
+				{/each}
+			</select>
 			<select bind:value={difficulty}>
-				<option value={'easy'} selected={difficulty == 'easy'}>Easy</option>
-				<option value={'medium'} selected={difficulty == 'medium'}>Medium</option>
-				<option value={'hard'} selected={difficulty == 'hard'}>Hard</option>
+				<option value={'easy'} selected={difficulty == 'easy'}
+					>{m.these_royal_hedgehog_grace()}</option
+				>
+				<option value={'medium'} selected={difficulty == 'medium'}
+					>{m.lofty_bright_anaconda_swim()}</option
+				>
+				<option value={'hard'} selected={difficulty == 'hard'}>{m.clear_lost_ant_yell()}</option>
 				{#if $isSuperHardUnlocked || difficulty == 'super-hard'}
-					<option value={'super-hard'} selected={difficulty == 'super-hard'}>Super Hard</option>
+					<option value={'super-hard'} selected={difficulty == 'super-hard'}
+						>{m.large_stout_raven_flow()}</option
+					>
 				{/if}
 			</select>
 		</div>
@@ -119,12 +146,12 @@
 			<ul class="activatable">
 				<li>
 					<a href={officialUrl.toString()} class="button" class:active={tab == 'official'}
-						>Official images</a
+						>{m.game_light_capybara_pride()}</a
 					>
 				</li>
 				<li>
 					<a href={customUrl.toString()} class="button" class:active={tab == 'custom'}
-						>Custom images</a
+						>{m.merry_heavy_wasp_startle()}</a
 					>
 				</li>
 			</ul>
@@ -170,7 +197,7 @@
 		flex-wrap: wrap;
 		justify-content: space-between;
 		align-items: center;
-		gap: 1rem;
+		gap: 0.5rem;
 	}
 
 	.grid {
