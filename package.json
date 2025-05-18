@@ -5,7 +5,7 @@
 		"dev": "vite dev --host 0.0.0.0",
 		"build": "vite build",
 		"preview": "vite preview --host 0.0.0.0",
-		"check": "svelte-kit sync && svelte-check --fail-on-warnings --tsconfig ./tsconfig.json",
+		"check": "svelte-kit sync && ./patch-paraglide-server.js src/lib/paraglide/server.js && svelte-check --fail-on-warnings --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write .",
@@ -13,7 +13,6 @@
 	},
 	"devDependencies": {
 		"@inlang/cli": "^3.0.11",
-		"@inlang/paraglide-js": "2.0.12",
 		"@sveltejs/adapter-auto": "^3.3.1",
 		"@sveltejs/adapter-static": "^3.0.8",
 		"@sveltejs/kit": "^2.21.0",
@@ -33,6 +32,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@inlang/paraglide-js": "2.0.12",
 		"dexie": "^4.0.11"
 	}
 }
