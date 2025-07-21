@@ -87,9 +87,9 @@ export function getTileCount(difficulty: db.Difficulty): number {
 		case 'easy':
 			return PUBLIC_VERSION == 'dev' ? 4 : 40;
 		case 'medium':
-			return 80;
+			return PUBLIC_VERSION == 'dev' ? 6 : 80;
 		case 'hard':
-			return 120;
+			return PUBLIC_VERSION == 'dev' ? 8 : 120;
 		case 'super-hard':
 			return 240;
 	}

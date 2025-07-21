@@ -68,13 +68,20 @@
 	// Unlock super hard when all the static images have been completed in hard mode
 	let isSuperHardUnlocked = liveQuery(async () => {
 		try {
-			let keys = await db.idb.gameCompletes
-				.orderBy('settings.image.key')
-				.filter((x) => {
-					return x.settings.tileCount == gs.getTileCount('hard');
-				})
-				.uniqueKeys();
-			return keys.length == Object.keys(im.staticImages).length;
+			let keys = new Set(
+				await db.idb.gameCompletes
+					.orderBy('settings.image.key')
+					.filter((x) => {
+						return x.settings.tileCount == gs.getTileCount('hard');
+					})
+					.uniqueKeys()
+			);
+			for (const key of Object.keys(im.staticImages)) {
+				if (!keys.has(key)) {
+					return false;
+				}
+			}
+			return true;
 		} catch (err) {
 			console.error('operation failed', err);
 		}

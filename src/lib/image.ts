@@ -47,7 +47,7 @@ export const staticImages: Record<string, ImageResource> = {
 	cosy: { name: m.brave_chunky_stingray_pinch(), url: image7 },
 	nut: { name: m.zany_fluffy_stingray_urge(), url: image8 },
 	bucks: { name: m.jumpy_actual_midge_buy(), url: image9 },
-	image10: { name: m.cute_petty_pig_pop(), url: image10 }
+	cat: { name: m.cute_petty_pig_pop(), url: image10 }
 };
 
 export function splitInCell(size: lm.Vec2d, n: number): lm.Vec2d {
