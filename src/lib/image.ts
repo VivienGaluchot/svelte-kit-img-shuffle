@@ -11,6 +11,7 @@ import image7 from '$lib/assets/valeria-kodra-2mj8Yu6Vftc-unsplash.jpg';
 import image8 from '$lib/assets/360floralflaves-SNQfkUNHWlA-unsplash.jpg';
 import image9 from '$lib/assets/ming-jun-tan--FC5Ozeetuw-unsplash.jpg';
 import image10 from '$lib/assets/mikhail-vasilyev-NodtnCsLdTE-unsplash.jpg';
+import image11 from '$lib/assets/rachel-park-hrlvr2ZlUNk-unsplash.jpg';
 
 export type ImageResource = {
 	// image name
@@ -47,7 +48,8 @@ export const staticImages: Record<string, ImageResource> = {
 	cosy: { name: m.brave_chunky_stingray_pinch(), url: image7 },
 	nut: { name: m.zany_fluffy_stingray_urge(), url: image8 },
 	bucks: { name: m.jumpy_actual_midge_buy(), url: image9 },
-	cat: { name: m.cute_petty_pig_pop(), url: image10 }
+	cat: { name: m.cute_petty_pig_pop(), url: image10 },
+	brunch: { name: m.mellow_noble_hound_yell(), url: image11 }
 };
 
 export function splitInCell(size: lm.Vec2d, n: number): lm.Vec2d {

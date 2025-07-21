@@ -141,7 +141,7 @@
 					>{m.lofty_bright_anaconda_swim()}</option
 				>
 				<option value={'hard'} selected={difficulty == 'hard'}>{m.clear_lost_ant_yell()}</option>
-				{#if $isSuperHardUnlocked || difficulty == 'super-hard'}
+				{#if $isSuperHardUnlocked || difficulty == 'super-hard' || db.ldb.getSuperHardUnlocked()}
 					<option value={'super-hard'} selected={difficulty == 'super-hard'}
 						>{m.large_stout_raven_flow()}</option
 					>
