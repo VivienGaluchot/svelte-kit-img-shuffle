@@ -76,22 +76,19 @@
 					})
 					.uniqueKeys()
 			);
+			console.log(keys);
+			console.log(im.staticImages);
 			for (const key of Object.keys(im.staticImages)) {
 				if (!keys.has(key)) {
 					return false;
 				}
 			}
+			db.ldb.setSuperHardUnlocked(true);
 			return true;
 		} catch (err) {
 			console.error('operation failed', err);
 		}
 		return false;
-	});
-
-	$effect(() => {
-		if ($isSuperHardUnlocked) {
-			db.ldb.setSuperHardUnlocked(true);
-		}
 	});
 
 	// custom images
