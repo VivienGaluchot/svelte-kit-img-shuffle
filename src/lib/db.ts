@@ -39,6 +39,8 @@ export type Difficulty = 'easy' | 'medium' | 'hard' | 'super-hard';
 
 const DifficultyKey = 'difficulty_v1';
 
+const IsSuperHardUnlocked = 'is_super_hard_unlocked_v1';
+
 export const ldb = {
 	getDifficulty(): Difficulty {
 		switch (window.localStorage.getItem(DifficultyKey)) {
@@ -55,5 +57,22 @@ export const ldb = {
 	},
 	setDifficulty(difficulty: Difficulty) {
 		window.localStorage.setItem(DifficultyKey, difficulty);
+	},
+
+	getSuperHardUnlocked(): boolean {
+		switch (window.localStorage.getItem(IsSuperHardUnlocked)) {
+			case 'true':
+				return true;
+			case 'false':
+			default:
+				return false;
+		}
+	},
+	setSuperHardUnlocked(isUnlocked: boolean) {
+		if (isUnlocked) {
+			window.localStorage.setItem(IsSuperHardUnlocked, 'true');
+		} else {
+			window.localStorage.setItem(IsSuperHardUnlocked, 'false');
+		}
 	}
 };

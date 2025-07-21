@@ -88,6 +88,12 @@
 		return false;
 	});
 
+	$effect(() => {
+		if ($isSuperHardUnlocked) {
+			db.ldb.setSuperHardUnlocked(true);
+		}
+	});
+
 	// custom images
 	// ---------------------------
 
