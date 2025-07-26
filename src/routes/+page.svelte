@@ -195,7 +195,9 @@
 						<GameCard {image} {tileCount} />
 					{/each}
 				{/if}
-				<RandomGameCard kind="custom" {tileCount} />
+				{#if $customImages && $customImages.length > 1}
+					<RandomGameCard kind="custom" {tileCount} />
+				{/if}
 			{/if}
 		</div>
 	</Content>

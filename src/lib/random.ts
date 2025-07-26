@@ -73,3 +73,8 @@ export function getRandomString(rand: RandomGenerator, length: number): string {
 	}
 	return result;
 }
+
+export function randomPick<T>(rand: RandomGenerator, values: T[]): T | undefined {
+	const randomIndex = Math.floor(rand() * values.length);
+	return values[randomIndex];
+}

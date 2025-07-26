@@ -1,8 +1,11 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import { goto } from '$app/navigation';
 	import * as paths from '$app/paths';
 	import * as gs from '$lib/gameSetting';
 	import * as rd from '$lib/random';
+	import * as im from '$lib/image';
+	import * as db from '$lib/db';
 
 	interface Props {
 		kind: 'static' | 'custom';
@@ -11,12 +14,15 @@
 
 	let { kind, tileCount }: Props = $props();
 
-	function onclick() {
+	async function onclick() {
 		let image: gs.ImageSetting;
 		if (kind == 'static') {
-			image = { kind: 'static', key: 'x' };
+			const key = rd.randomPick(Math.random, Object.keys(im.staticImages));
+			image = { kind: 'static', key: key ?? '?' };
 		} else {
-			image = { kind: 'custom', id: 0 };
+			const ids = await db.idb.customImages.toCollection().primaryKeys();
+			const id = rd.randomPick(Math.random, ids);
+			image = { kind: 'custom', id: id ?? -1 };
 		}
 		const url = new URL(`${paths.base}/play`, window.location.origin);
 		gs.encodeSettingToUrl(url, { tileCount, seed: rd.getRandomString(Math.random, 6), image });
@@ -27,7 +33,7 @@
 <div class="card">
 	<button class="link" {onclick} aria-label="random">?</button>
 	<div class="bottom-bar">
-		<div class="name">Random</div>
+		<div class="name">{m.aware_clean_bison_trim()}</div>
 	</div>
 </div>
 
