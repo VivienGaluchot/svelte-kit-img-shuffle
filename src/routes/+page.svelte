@@ -11,6 +11,7 @@
 	import Container from '$lib/layout/container.svelte';
 	import Content from '$lib/layout/content.svelte';
 	import GameCard from './gameCard.svelte';
+	import RandomGameCard from './randomGameCard.svelte';
 	import * as homeUrl from './url';
 
 	// urls
@@ -187,12 +188,14 @@
 				{#each staticImageSettings as image (image.key)}
 					<GameCard {image} {tileCount} />
 				{/each}
+				<RandomGameCard kind="static" {tileCount} />
 			{:else if tab == 'custom'}
 				{#if $customImages && $customImages.length > 0}
 					{#each $customImages as image (image.id)}
 						<GameCard {image} {tileCount} />
 					{/each}
 				{/if}
+				<RandomGameCard kind="custom" {tileCount} />
 			{/if}
 		</div>
 	</Content>
