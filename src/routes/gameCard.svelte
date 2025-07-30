@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as paths from '$app/paths';
 	import Confirm from '$lib/cmp/confirm.svelte';
+	import Timer from '$lib/cmp/timer.svelte';
 	import * as db from '$lib/db';
 	import * as gs from '$lib/gameSetting';
 	import * as rd from '$lib/random';
@@ -36,23 +37,25 @@
 		}
 	}
 
-	let isComplete = $derived.by(() => {
+	let bestDurationInSec = $derived.by(() => {
 		// noop for reactivity
 		// see https://github.com/dexie/Dexie.js/issues/2075
 		tileCount;
 		image;
 		return liveQuery(async () => {
 			try {
-				const collection = db.idb.gameCompletes
+				const collection = await db.idb.gameCompletes
 					.where(equalImageTileCount(image, tileCount))
-					.limit(1);
-				return (await collection.count()) > 0;
+					.sortBy('durationInSec');
+				return collection[0]?.durationInSec;
 			} catch (err) {
 				console.error('operation failed', err);
 			}
-			return false;
+			return undefined;
 		});
 	});
+
+	let isComplete = $derived($bestDurationInSec != undefined);
 
 	// delete
 	// ---------------------------
@@ -80,7 +83,7 @@
 	{#await gs.getImage(image) then image}
 		<a
 			class="link"
-			class:complete={$isComplete === true}
+			class:complete={isComplete === true}
 			href={getUrl(tileCount)}
 			aria-label={image.name}
 		>
@@ -94,13 +97,21 @@
 				<button class="del-btn" onclick={deleteImage}><i class="fa-solid fa-trash"></i></button>
 			</div>
 		{/if}
-		<div class="bottom-bar">
-			<div class="name">{image.name}</div>
-			<div class="tag">
-				{#if $isComplete === true}
-					<i class="fa-solid fa-circle-check"></i>
+		<div class="bottom-bar flex-v">
+			<div class="flex-h">
+				<div class="name">{image.name}</div>
+				{#if isComplete === true}
+					<div class="tag">
+						<i class="fa-solid fa-circle-check"></i>
+					</div>
 				{/if}
 			</div>
+			{#if $bestDurationInSec}
+				<div class="flex-h">
+					<div>Best</div>
+					<div><Timer durationInSec={$bestDurationInSec}></Timer></div>
+				</div>
+			{/if}
 		</div>
 	{/await}
 </div>
@@ -144,22 +155,32 @@
 	.bottom-bar,
 	.del-btn {
 		position: absolute;
-		background-color: rgba(125, 125, 125, 0.2);
-		backdrop-filter: blur(0.2rem);
+		background-color: rgba(100, 100, 100, 0.2);
+		backdrop-filter: blur(0.4rem);
 	}
 
 	.bottom-bar {
 		padding: 0.5rem;
-		display: flex;
-		justify-content: space-between;
 		flex-shrink: 1;
 		max-width: 100%;
-		gap: 1rem;
 		transition: 100ms;
 		left: 0;
 		right: 0;
 		bottom: 0;
 		visibility: visible;
+		font-weight: 100;
+	}
+
+	.flex-v {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+	}
+
+	.flex-h {
+		display: flex;
+		justify-content: space-between;
+		gap: 0.8rem;
 	}
 
 	.card:hover .bottom-bar {
@@ -172,6 +193,7 @@
 	}
 
 	.name {
+		font-weight: 400;
 		max-width: 100%;
 		overflow: hidden;
 		text-overflow: ellipsis;

@@ -10,6 +10,7 @@
 	import Header from '$lib/layout/header.svelte';
 	import Game from './game.svelte';
 	import * as homeUrl from '../url';
+	import Timer from '$lib/cmp/timer.svelte';
 
 	// settings
 	// ---------------------------
@@ -143,9 +144,7 @@
 					{/if}
 				</div>
 				<div class="muted" style="flex:1; text-align: right;">
-					{actionCount} move{#if actionCount > 1}s{/if} | {Math.floor(durationInSec / 60)
-						.toString()
-						.padStart(2, '0')}:{(durationInSec % 60).toString().padStart(2, '0')}
+					{actionCount} move{#if actionCount > 1}s{/if} | <Timer {durationInSec}></Timer>
 				</div>
 			</div>
 		{:catch}
