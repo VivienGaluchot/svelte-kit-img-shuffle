@@ -120,11 +120,11 @@
 					class:failed={shareState == 'failed'}
 					onclick={share}
 				>
-					Share
+					{m.helpful_whole_parrot_embrace()}
 					<i class="fa-solid fa-copy"></i>
 				</button>
 			{/if}
-			<a class="button" href={backUrl.toString()}>Back</a>
+			<a class="button" href={backUrl.toString()}>{m.civil_clear_finch_grip()}</a>
 		</div>
 	</Header>
 
