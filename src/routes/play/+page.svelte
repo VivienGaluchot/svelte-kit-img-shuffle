@@ -130,7 +130,7 @@
 
 	<Content>
 		{#await imagePromise}
-			Loading image...
+			{m.careful_ago_coyote_pout()}
 		{:then image}
 			<Game bind:rows bind:cols bind:actionCount bind:isSolved {tileCount} {seed} {image} />
 
@@ -140,15 +140,21 @@
 				</div>
 				<div>
 					{#if isSolved}
-						Solved ✨
+						{m.left_main_dolphin_sprout()} ✨
 					{/if}
 				</div>
 				<div class="muted" style="flex:1; text-align: right;">
-					{actionCount} move{#if actionCount > 1}s{/if} | <Timer {durationInSec}></Timer>
+					{actionCount}
+					{#if actionCount > 1}
+						{m.proud_ago_parakeet_fond()}
+					{:else}
+						{m.aware_stout_mouse_sail()}
+					{/if}
+					| <Timer {durationInSec}></Timer>
 				</div>
 			</div>
 		{:catch}
-			Failed to load image...
+			{m.slimy_helpful_dingo_nudge()}
 		{/await}
 	</Content>
 </Container>
