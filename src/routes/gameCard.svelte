@@ -101,17 +101,14 @@
 			<div class="flex-h">
 				<div class="name">{image.name}</div>
 				{#if isComplete === true}
-					<div class="tag">
+					<div class="tag flex-h">
+						{#if $bestDurationInSec}
+							<Timer durationInSec={$bestDurationInSec}></Timer>
+						{/if}
 						<i class="fa-solid fa-circle-check"></i>
 					</div>
 				{/if}
 			</div>
-			{#if $bestDurationInSec}
-				<div class="flex-h">
-					<div>Best</div>
-					<div><Timer durationInSec={$bestDurationInSec}></Timer></div>
-				</div>
-			{/if}
 		</div>
 	{/await}
 </div>
@@ -180,6 +177,7 @@
 	.flex-h {
 		display: flex;
 		justify-content: space-between;
+		align-items: baseline;
 		gap: 0.8rem;
 	}
 
