@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import type { Snippet } from 'svelte';
 	import Dialog from '$lib/cmp/dialog.svelte';
 
@@ -39,14 +40,14 @@
 	}}
 >
 	<div class="flex-v">
-		<div class="title">Confirmation required</div>
+		<div class="title">{m.fresh_formal_fox_cut()}</div>
 		<div class="content">
 			{@render children?.()}
 		</div>
 		<div class="buttons">
-			<button class="danger" onclick={yes}>Yes</button>
+			<button class="danger" onclick={yes}>{m.vivid_fun_cobra_amuse()}</button>
 			<!-- svelte-ignore a11y_autofocus -->
-			<button autofocus onclick={no}>No</button>
+			<button autofocus onclick={no}>{m.dirty_short_cod_comfort()}</button>
 		</div>
 	</div>
 </Dialog>

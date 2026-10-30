@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
 	import * as paths from '$app/paths';
 	import Confirm from '$lib/cmp/confirm.svelte';
 	import Timer from '$lib/cmp/timer.svelte';
@@ -75,8 +76,8 @@
 </script>
 
 <Confirm bind:this={delConfirm}>
-	Please confirm custom image deletion.<br />
-	Operation cannot be undone.
+	{m.mellow_each_reindeer_inspire()}<br />
+	{m.lime_great_marten_favor()}
 </Confirm>
 
 <div class="card">
