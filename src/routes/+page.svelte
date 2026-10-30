@@ -113,8 +113,7 @@
 
 	$effect(() => {
 		if (fileInputValue) {
-			const file = fileInputValue[0];
-			if (file) {
+			for (const file of fileInputValue) {
 				add(file.name, file);
 			}
 		}
@@ -176,6 +175,7 @@
 							hidden
 							type="file"
 							accept="image/*"
+							multiple={true}
 							bind:files={fileInputValue}
 						/>
 					</li>
