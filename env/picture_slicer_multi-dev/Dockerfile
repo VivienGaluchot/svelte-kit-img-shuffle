@@ -1,8 +1,8 @@
-FROM debian:11
+FROM debian:13
 
 # add dev tools
 RUN apt-get update && \
-    apt-get install git vim sudo bash-completion wget -y
+    apt-get install git vim sudo bash-completion wget -y --fix-missing
 
 # add dev user
 RUN useradd -m dev && echo "dev:dev" | chpasswd && adduser dev sudo
